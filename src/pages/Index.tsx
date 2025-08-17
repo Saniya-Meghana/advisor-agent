@@ -1,13 +1,14 @@
 import Hero from "@/components/branding/Hero";
 import ComplianceChat from "@/components/chat/ComplianceChat";
-import Header from "@/components/layout/Header";
+import UserMenu from "@/components/auth/UserMenu";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>
-        <div className="container mx-auto max-w-6xl px-4 py-10">
+    <main className="min-h-screen bg-background">
+      <div className="container mx-auto max-w-6xl px-4 py-10">
+        <div className="flex justify-end mb-4">
+          <UserMenu />
+        </div>
           <Hero />
 
           <section id="how-it-works" className="mt-12">
@@ -35,7 +36,6 @@ const Index = () => {
           <ComplianceChat />
         </div>
       </main>
-    </div>
   );
 };
 
