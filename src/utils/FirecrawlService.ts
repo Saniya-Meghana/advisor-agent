@@ -36,7 +36,7 @@ export class FirecrawlService {
       console.log('Testing API key with Firecrawl API');
       this.firecrawlApp = new FirecrawlApp({ apiKey });
       const testResponse = await this.firecrawlApp.crawlUrl('https://example.com', { limit: 1 });
-      return (testResponse as CrawlStatusResponse).success === true;
+      return testResponse.success === true;
     } catch (error) {
       console.error('Error testing API key:', error);
       return false;
