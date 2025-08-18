@@ -37,7 +37,7 @@ const Documents = () => {
         <header>
           <h1 className="text-3xl font-display font-bold">Documents</h1>
           <p className="mt-2 text-muted-foreground max-w-prose">
-            To securely store and retrieve documents for RAG, please connect Supabase in the top-right first. For quick tests, you can use Firecrawl below with a temporary API key stored in your browser.
+            Your project is connected to Supabase! You can now securely store and retrieve documents for RAG. Use Firecrawl below to crawl websites and store the content in your database.
           </p>
         </header>
 
