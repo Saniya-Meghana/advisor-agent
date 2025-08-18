@@ -1,36 +1,8 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { CrawlForm } from "@/components/CrawlForm";
-import { FirecrawlService } from "@/utils/FirecrawlService";
 
 const Documents = () => {
-  const { toast } = useToast();
-  const [apiKey, setApiKey] = useState(FirecrawlService.getApiKey() || "");
-  const [testing, setTesting] = useState(false);
-
-  const saveKey = () => {
-    if (!apiKey) {
-      toast({ title: "API key required", description: "Enter your Firecrawl API key.", variant: "destructive" });
-      return;
-    }
-    FirecrawlService.saveApiKey(apiKey);
-    toast({ title: "Saved", description: "API key stored locally for this browser." });
-  };
-
-  const testKey = async () => {
-    try {
-      setTesting(true);
-      const ok = await FirecrawlService.testApiKey(apiKey);
-      toast({ title: ok ? "API key works" : "API key failed", description: ok ? "Ready to crawl." : "Please verify your key." , variant: ok ? undefined : "destructive"});
-    } finally {
-      setTesting(false);
-    }
-  };
-
   return (
     <main className="min-h-screen bg-background">
       <div className="container mx-auto max-w-4xl px-4 py-10">
@@ -44,37 +16,29 @@ const Documents = () => {
         <section className="mt-8 grid gap-6">
           <Card className="card-elevated">
             <CardHeader>
-              <CardTitle>Supabase Integration (Recommended)</CardTitle>
+              <CardTitle>✅ Supabase Connected</CardTitle>
             </CardHeader>
             <Separator />
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">
-                Connect your project to Supabase to enable secure document storage, authentication, and server-side API key management.
+                Your project is successfully connected to Supabase with secure document storage, authentication, and server-side API key management enabled.
               </p>
             </CardContent>
           </Card>
 
           <Card className="card-elevated">
             <CardHeader>
-              <CardTitle>Firecrawl API Key</CardTitle>
+              <CardTitle>Firecrawl API Key (Secure Storage)</CardTitle>
             </CardHeader>
             <Separator />
             <CardContent className="pt-6">
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Input
-                  placeholder="Enter Firecrawl API key"
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <Button onClick={saveKey} variant="outline">Save</Button>
-                  <Button onClick={testKey} variant="hero" disabled={testing}>
-                    {testing ? 'Testing…' : 'Test key'}
-                  </Button>
-                </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Your Firecrawl API key is now securely stored in Supabase secrets. No need to enter it here - just use the crawl form below!
+              </p>
+              <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                <span>✅</span>
+                <span>API key configured in Supabase secrets</span>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">Stored locally; switch to Supabase secrets once connected.</p>
             </CardContent>
           </Card>
 

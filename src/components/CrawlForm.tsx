@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
-import { FirecrawlService } from '@/utils/FirecrawlService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CrawlResult {
   success: boolean;
@@ -31,23 +31,46 @@ export const CrawlForm = () => {
     setCrawlResult(null);
 
     try {
-      const apiKey = FirecrawlService.getApiKey();
-      if (!apiKey) {
-        toast({ title: "API key missing", description: "Please set your Firecrawl API key first.", variant: "destructive", duration: 3000 });
+      const { data, error } = await supabase.functions.invoke('crawl-website', {
+        body: { url }
+      });
+
+      if (error) {
+        toast({ 
+          title: "Error", 
+          description: error.message || "Failed to crawl website", 
+          variant: "destructive", 
+          duration: 3000 
+        });
+        setCrawlResult({ success: false, error: error.message });
         return;
       }
 
-      const result = await FirecrawlService.crawlWebsite(url);
-      if (result.success) {
-        toast({ title: "Crawl started", description: "Website crawled successfully.", duration: 2500 });
-        setCrawlResult({ success: true, ...(result.data || {}) });
+      if (data.success) {
+        toast({ 
+          title: "Crawl completed", 
+          description: "Website crawled successfully.", 
+          duration: 2500 
+        });
+        setCrawlResult({ success: true, ...data.data });
       } else {
-        toast({ title: "Error", description: result.error || "Failed to crawl website", variant: "destructive", duration: 3000 });
-        setCrawlResult({ success: false, error: result.error });
+        toast({ 
+          title: "Error", 
+          description: data.error || "Failed to crawl website", 
+          variant: "destructive", 
+          duration: 3000 
+        });
+        setCrawlResult({ success: false, error: data.error });
       }
     } catch (error) {
       console.error('Error crawling website:', error);
-      toast({ title: "Error", description: "Failed to crawl website", variant: "destructive", duration: 3000 });
+      toast({ 
+        title: "Error", 
+        description: "Failed to crawl website", 
+        variant: "destructive", 
+        duration: 3000 
+      });
+      setCrawlResult({ success: false, error: "Network error" });
     } finally {
       setIsLoading(false);
       setProgress(100);
