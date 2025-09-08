@@ -1,6 +1,10 @@
 import Hero from "@/components/branding/Hero";
-import ComplianceChat from "@/components/chat/ComplianceChat";
+import EnhancedComplianceChat from "@/components/chat/EnhancedComplianceChat";
 import UserMenu from "@/components/auth/UserMenu";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Shield, MessageSquare, BarChart3 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
@@ -9,33 +13,81 @@ const Index = () => {
         <div className="flex justify-end mb-4">
           <UserMenu />
         </div>
-          <Hero />
+        
+        <Hero />
 
-          <section id="how-it-works" className="mt-12">
-            <h2 className="text-2xl font-semibold">How it works</h2>
-            <p className="mt-2 text-muted-foreground max-w-prose">
-              Ask any compliance question. The advisor retrieves relevant policy and regulation text, then answers with clear, concise guidance and transparent citations.
-              If the context is missing, it explains the gap and suggests next steps.
-            </p>
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <article className="card-elevated rounded-lg p-5">
-                <h3 className="font-semibold">Accuracy First</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Grounded answers based on retrieved documents and sections.</p>
-              </article>
-              <article className="card-elevated rounded-lg p-5">
-                <h3 className="font-semibold">Empathy Always</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Friendly tone that supports good intent and learning.</p>
-              </article>
-              <article className="card-elevated rounded-lg p-5">
-                <h3 className="font-semibold">Source Transparency</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Citations with documents and sections wherever possible.</p>
-              </article>
-            </div>
-          </section>
+        {/* Quick Actions */}
+        <section className="mt-12">
+          <h2 className="text-2xl font-semibold mb-6">Quick Actions</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Link to="/dashboard">
+              <Card className="card-elevated hover-scale cursor-pointer">
+                <CardHeader className="text-center">
+                  <BarChart3 className="h-8 w-8 mx-auto text-primary mb-2" />
+                  <CardTitle className="text-lg">Dashboard</CardTitle>
+                  <CardDescription>View compliance overview and analytics</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
 
-          <ComplianceChat />
-        </div>
-      </main>
+            <Link to="/documents">
+              <Card className="card-elevated hover-scale cursor-pointer">
+                <CardHeader className="text-center">
+                  <FileText className="h-8 w-8 mx-auto text-primary mb-2" />
+                  <CardTitle className="text-lg">Documents</CardTitle>
+                  <CardDescription>Upload and manage compliance documents</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            <Card className="card-elevated">
+              <CardHeader className="text-center">
+                <MessageSquare className="h-8 w-8 mx-auto text-primary mb-2" />
+                <CardTitle className="text-lg">AI Assistant</CardTitle>
+                <CardDescription>Chat with compliance advisor below</CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Link to="/settings">
+              <Card className="card-elevated hover-scale cursor-pointer">
+                <CardHeader className="text-center">
+                  <Shield className="h-8 w-8 mx-auto text-primary mb-2" />
+                  <CardTitle className="text-lg">Settings</CardTitle>
+                  <CardDescription>Manage account and preferences</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="mt-12">
+          <h2 className="text-2xl font-semibold">How it works</h2>
+          <p className="mt-2 text-muted-foreground max-w-prose">
+            Ask any compliance question. The advisor retrieves relevant policy and regulation text, then answers with clear, concise guidance and transparent citations.
+            If the context is missing, it explains the gap and suggests next steps.
+          </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <article className="card-elevated rounded-lg p-5">
+              <h3 className="font-semibold">AI-Powered Analysis</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Advanced AI analyzes your documents for compliance gaps and risks.</p>
+            </article>
+            <article className="card-elevated rounded-lg p-5">
+              <h3 className="font-semibold">Real-time Guidance</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Get instant answers to compliance questions with contextual advice.</p>
+            </article>
+            <article className="card-elevated rounded-lg p-5">
+              <h3 className="font-semibold">Actionable Insights</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Receive specific recommendations and action plans for compliance.</p>
+            </article>
+          </div>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-2xl font-semibold mb-6">Compliance Assistant</h2>
+          <EnhancedComplianceChat />
+        </section>
+      </div>
+    </main>
   );
 };
 
