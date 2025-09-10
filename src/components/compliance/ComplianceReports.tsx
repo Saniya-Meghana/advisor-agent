@@ -107,35 +107,33 @@ const ComplianceReports = () => {
 
   const exportReport = async (report: ComplianceReport) => {
     try {
-      const reportData = {
-        document: report.documents.original_name,
-        risk_level: report.risk_level,
-        compliance_score: report.compliance_score,
-        generated_at: report.generated_at,
-        analysis_summary: report.analysis_summary,
-        issues_detected: report.issues_detected,
-        recommendations: report.recommendations
-      };
+      const { data, error } = await supabase.functions.invoke('export-report', {
+        body: {
+          report_ids: [report.id],
+          format: 'pdf',
+          include_charts: true
+        }
+      });
 
-      const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `compliance-report-${report.documents.original_name}-${format(new Date(report.generated_at), 'yyyy-MM-dd')}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      if (error) throw error;
+
+      // Create download link
+      const link = document.createElement('a');
+      link.href = data.download_url;
+      link.download = data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
       toast({
         title: "Report exported",
-        description: "Compliance report has been downloaded",
+        description: "Professional compliance report has been generated and downloaded",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Export error:', error);
       toast({
         title: "Export failed",
-        description: "Failed to export compliance report",
+        description: error.message || "Failed to export compliance report",
         variant: "destructive",
       });
     }
