@@ -17,19 +17,9 @@ const Hero = () => {
               with clear, source-cited guidance. If something isn’t certain, it will say so.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href="#chat" className="hover-scale">
-                <Button variant="hero" size="lg" aria-label="Start chatting with the advisor">
-                  Start chatting
-                </Button>
-              </a>
               <a href="#how-it-works" className="focus-visible:ring-2 focus-visible:ring-ring rounded-md hover-scale">
-                <Button variant="outline" size="lg" aria-label="Learn how it works">
+                <Button variant="hero" size="lg" aria-label="Learn how it works">
                   How it works
-                </Button>
-              </a>
-              <a href="/documents" className="focus-visible:ring-2 focus-visible:ring-ring rounded-md hover-scale">
-                <Button variant="outline" size="lg" aria-label="Add documents for retrieval">
-                  Add documents
                 </Button>
               </a>
             </div>
