@@ -4,7 +4,6 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DocumentUpload from "@/components/documents/DocumentUpload";
 import DocumentList from "@/components/documents/DocumentList";
-import { CrawlForm } from "@/components/CrawlForm";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const Documents = () => {
@@ -21,15 +20,14 @@ const Documents = () => {
           <header className="mb-8">
             <h1 className="text-3xl font-display font-bold mb-2">Document Management</h1>
             <p className="text-muted-foreground max-w-prose">
-              Upload documents for compliance analysis or crawl websites to extract content. All documents are securely stored and automatically analyzed.
+              Upload documents for compliance analysis. All documents are securely stored and automatically analyzed.
             </p>
           </header>
 
           <Tabs defaultValue="upload" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="upload">Upload Documents</TabsTrigger>
               <TabsTrigger value="documents">My Documents</TabsTrigger>
-              <TabsTrigger value="crawl">Website Crawler</TabsTrigger>
             </TabsList>
 
             <TabsContent value="upload" className="space-y-6">
@@ -61,27 +59,6 @@ const Documents = () => {
                     key={refreshTrigger} 
                     onDocumentChange={handleUploadComplete} 
                   />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="crawl" className="space-y-6">
-              <Card className="card-elevated">
-                <CardHeader>
-                  <CardTitle>Website Crawler</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Extract and analyze content from websites using Firecrawl
-                  </p>
-                </CardHeader>
-                <Separator />
-                <CardContent className="pt-6">
-                  <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
-                      <span>✅</span>
-                      <span>Firecrawl API key configured in Supabase secrets</span>
-                    </div>
-                  </div>
-                  <CrawlForm />
                 </CardContent>
               </Card>
             </TabsContent>
