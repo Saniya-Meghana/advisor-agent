@@ -1,9 +1,8 @@
 import Hero from "@/components/branding/Hero";
 import EnhancedComplianceChat from "@/components/chat/EnhancedComplianceChat";
 import UserMenu from "@/components/auth/UserMenu";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Shield, MessageSquare, BarChart3 } from "lucide-react";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
@@ -18,14 +17,13 @@ const Index = () => {
 
         {/* Quick Actions */}
         <section className="mt-12">
-          <h2 className="text-2xl font-semibold mb-6">Quick Actions</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 max-w-2xl mx-auto">
             <Link to="/dashboard">
               <Card className="card-elevated hover-scale cursor-pointer">
                 <CardHeader className="text-center">
                   <BarChart3 className="h-8 w-8 mx-auto text-primary mb-2" />
                   <CardTitle className="text-lg">Dashboard</CardTitle>
-                  <CardDescription>View compliance overview and analytics</CardDescription>
+                  <CardDescription>View compliance overview</CardDescription>
                 </CardHeader>
               </Card>
             </Link>
@@ -34,26 +32,8 @@ const Index = () => {
               <Card className="card-elevated hover-scale cursor-pointer">
                 <CardHeader className="text-center">
                   <FileText className="h-8 w-8 mx-auto text-primary mb-2" />
-                  <CardTitle className="text-lg">Documents</CardTitle>
-                  <CardDescription>Upload and manage compliance documents</CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            <Card className="card-elevated">
-              <CardHeader className="text-center">
-                <MessageSquare className="h-8 w-8 mx-auto text-primary mb-2" />
-                <CardTitle className="text-lg">AI Assistant</CardTitle>
-                <CardDescription>Chat with compliance advisor below</CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Link to="/settings">
-              <Card className="card-elevated hover-scale cursor-pointer">
-                <CardHeader className="text-center">
-                  <Shield className="h-8 w-8 mx-auto text-primary mb-2" />
-                  <CardTitle className="text-lg">Settings</CardTitle>
-                  <CardDescription>Manage account and preferences</CardDescription>
+                  <CardTitle className="text-lg">Add Documents</CardTitle>
+                  <CardDescription>Upload compliance documents</CardDescription>
                 </CardHeader>
               </Card>
             </Link>
