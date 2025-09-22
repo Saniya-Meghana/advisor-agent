@@ -42,7 +42,7 @@ const RoleGuard = ({ children, allowedRoles, fallback }: RoleGuardProps) => {
       if (roles.length === 0) {
         await assignDefaultRole();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching user roles:', error);
       setError(error.message);
     } finally {
@@ -60,7 +60,7 @@ const RoleGuard = ({ children, allowedRoles, fallback }: RoleGuardProps) => {
 
       if (error) throw error;
       setUserRoles(['viewer']);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error assigning default role:', error);
       setError('Failed to assign default role');
     }

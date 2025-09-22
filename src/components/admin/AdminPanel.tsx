@@ -164,7 +164,7 @@ const AdminPanel = () => {
         setAuditLogs([]);
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching data:', error);
       toast({
         title: "Error",
@@ -233,7 +233,7 @@ const AdminPanel = () => {
       setTemplateForm({ name: '', description: '', version: '1.0', template_data: '' });
       setSelectedTemplate(null);
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving template:', error);
       toast({
         title: "Error",
@@ -271,7 +271,7 @@ const AdminPanel = () => {
       });
 
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating user role:', error);
       toast({
         title: "Error",
@@ -298,7 +298,7 @@ const AdminPanel = () => {
       });
 
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating template status:', error);
       toast({
         title: "Error",

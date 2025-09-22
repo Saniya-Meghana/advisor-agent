@@ -48,7 +48,7 @@ CREATE TABLE public.audit_logs (
     action TEXT NOT NULL,
     resource_type TEXT NOT NULL,
     resource_id UUID,
-    details JSONB DEFAULT '{}'::jsonb,
+    details JSONB DEFAULT 'Record<string, unknown>'::jsonb,
     ip_address INET,
     user_agent TEXT,
     timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
@@ -133,7 +133,7 @@ WITH CHECK (auth.uid() = user_id OR public.has_role(auth.uid(), 'admin'));
 
 -- Add columns to documents table for enhanced metadata
 ALTER TABLE public.documents
-ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT 'Record<string, unknown>',
 ADD COLUMN IF NOT EXISTS retention_policy_days INTEGER DEFAULT 2555, -- 7 years default
 ADD COLUMN IF NOT EXISTS priority TEXT DEFAULT 'normal',
 ADD COLUMN IF NOT EXISTS source_system TEXT;
@@ -144,7 +144,7 @@ ADD COLUMN IF NOT EXISTS regulation_template_id UUID,
 ADD COLUMN IF NOT EXISTS model_name TEXT DEFAULT 'gpt-4o-mini',
 ADD COLUMN IF NOT EXISTS model_version TEXT DEFAULT '1.0',
 ADD COLUMN IF NOT EXISTS evidence_chunks JSONB DEFAULT '[]'::jsonb,
-ADD COLUMN IF NOT EXISTS clause_scores JSONB DEFAULT '{}'::jsonb;
+ADD COLUMN IF NOT EXISTS clause_scores JSONB DEFAULT 'Record<string, unknown>'::jsonb;
 
 -- Create triggers for updated_at columns
 CREATE TRIGGER update_user_roles_updated_at
@@ -199,7 +199,7 @@ CREATE OR REPLACE FUNCTION public.log_audit_event(
     p_action TEXT,
     p_resource_type TEXT,
     p_resource_id UUID DEFAULT NULL,
-    p_details JSONB DEFAULT '{}'::jsonb
+    p_details JSONB DEFAULT 'Record<string, unknown>'::jsonb
 ) RETURNS VOID
 LANGUAGE plpgsql
 SECURITY DEFINER

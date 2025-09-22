@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-notification-email function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),

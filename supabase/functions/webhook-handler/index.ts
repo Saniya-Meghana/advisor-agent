@@ -113,7 +113,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in webhook-handler function:', error);
     return new Response(
       JSON.stringify({ 
@@ -182,7 +182,7 @@ async function handleDocumentUploaded(supabaseClient: any, data: any, actions: s
     
     actions.push('created_notification');
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     errors.push(`Document upload handler error: ${error.message}`);
   }
 }
@@ -228,7 +228,7 @@ async function handleComplianceThresholdExceeded(supabaseClient: any, data: any,
       actions.push('triggered_reanalysis');
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     errors.push(`Compliance threshold handler error: ${error.message}`);
   }
 }
@@ -267,7 +267,7 @@ async function handleRegulationUpdated(supabaseClient: any, data: any, actions: 
       actions.push(`queued_${affected_documents.length}_documents_for_reanalysis`);
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     errors.push(`Regulation update handler error: ${error.message}`);
   }
 }
@@ -299,7 +299,7 @@ async function handleAuditRequested(supabaseClient: any, data: any, actions: str
     
     actions.push('triggered_audit_scan');
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     errors.push(`Audit request handler error: ${error.message}`);
   }
 }
@@ -338,7 +338,7 @@ async function handleSystemAlert(supabaseClient: any, data: any, actions: string
       actions.push(`created_${notifications.length}_system_notifications`);
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     errors.push(`System alert handler error: ${error.message}`);
   }
 }
@@ -372,7 +372,7 @@ async function handleUserRiskProfileChanged(supabaseClient: any, data: any, acti
       actions.push('triggered_profile_based_rescan');
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     errors.push(`Risk profile change handler error: ${error.message}`);
   }
 }
@@ -396,7 +396,7 @@ async function handleGenericEvent(supabaseClient: any, event: WebhookEvent, acti
       actions.push('created_generic_notification');
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     errors.push(`Generic event handler error: ${error.message}`);
   }
 }

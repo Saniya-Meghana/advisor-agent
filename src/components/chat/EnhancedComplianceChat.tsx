@@ -77,7 +77,7 @@ const EnhancedComplianceChat = () => {
       } else {
         await createNewSession();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching sessions:', error);
       toast({
         title: "Error",
@@ -100,7 +100,7 @@ const EnhancedComplianceChat = () => {
       if (error) throw error;
 
       setMessages(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching messages:', error);
       toast({
         title: "Error",
@@ -131,7 +131,7 @@ const EnhancedComplianceChat = () => {
       
       // Add welcome message
       await addWelcomeMessage(data.id);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating session:', error);
       toast({
         title: "Error",
@@ -188,7 +188,7 @@ How can I assist you today?`,
           user_id: user.id,
           message_type: 'user',
           content: userMessage,
-          metadata: {}
+          metadata: Record<string, unknown>
         })
         .select()
         .single();
@@ -217,7 +217,7 @@ How can I assist you today?`,
           user_id: user.id,
           message_type: 'assistant',
           content: aiResponse.response,
-          metadata: aiResponse.metadata || {}
+          metadata: aiResponse.metadata || Record<string, unknown>
         })
         .select()
         .single();
@@ -239,7 +239,7 @@ How can I assist you today?`,
         setSessions(prev => prev.map(s => s.id === currentSession.id ? { ...s, title } : s));
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error sending message:', error);
       toast({
         title: "Error",

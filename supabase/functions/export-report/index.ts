@@ -119,7 +119,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in export-report function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
@@ -201,7 +201,7 @@ function generateHTMLReport(reports: any[], includeCharts: boolean): string {
   const riskDistribution = reports.reduce((acc, r) => {
     acc[r.risk_level] = (acc[r.risk_level] || 0) + 1;
     return acc;
-  }, {} as Record<string, number>);
+  }, Record<string, unknown> as Record<string, number>);
 
   return `
 <!DOCTYPE html>

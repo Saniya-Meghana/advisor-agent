@@ -123,8 +123,8 @@ const RiskDashboard = () => {
         : 0;
 
       // Prepare compliance by regulation data
-      const regulationCounts: Record<string, number> = {};
-      const regulationScores: Record<string, number[]> = {};
+      const regulationCounts: Record<string, number> = Record<string, unknown>;
+      const regulationScores: Record<string, number[]> = Record<string, unknown>;
       
       completedAnalyses.forEach(doc => {
         const latestReport = doc.compliance_reports[doc.compliance_reports.length - 1];
@@ -145,7 +145,7 @@ const RiskDashboard = () => {
       }));
 
       // Extract top red flags
-      const allRedFlags: Record<string, number> = {};
+      const allRedFlags: Record<string, number> = Record<string, unknown>;
       completedAnalyses.forEach(doc => {
         const latestReport = doc.compliance_reports[doc.compliance_reports.length - 1];
         if (latestReport?.issues_detected) {
@@ -181,7 +181,7 @@ const RiskDashboard = () => {
         unreadNotifications: notifications?.length || 0
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching dashboard data:', error);
       toast({
         title: "Error",

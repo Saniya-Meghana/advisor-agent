@@ -83,7 +83,7 @@ serve(async (req) => {
 
         return { document_id: doc.id, status: 'completed', data };
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error(`Error processing document ${doc.id}:`, error);
         return { document_id: doc.id, status: 'error', error: error.message };
       }
@@ -145,7 +145,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in scheduled-compliance-scan function:', error);
     return new Response(
       JSON.stringify({ 
@@ -220,7 +220,7 @@ async function generateScanSummary(supabaseClient: any, documentResults: any[], 
     processed: documentResults.filter(r => r.status === 'completed').length,
     skipped: documentResults.filter(r => r.status === 'skipped').length,
     errors: documentResults.filter(r => r.status === 'error').length,
-    risk_distribution: {} as Record<string, number>,
+    risk_distribution: Record<string, unknown> as Record<string, number>,
     top_issues: [] as any[],
     recommendations: [] as string[]
   };

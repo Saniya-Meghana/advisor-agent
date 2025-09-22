@@ -152,7 +152,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in analyze-compliance function:', error);
     
     // Update document status to error if document_id exists
@@ -305,7 +305,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
           ? analysisResult.recommendations 
           : [],
         analysis_summary: analysisResult.analysis_summary || 'Analysis completed',
-        clause_scores: analysisResult.clause_scores || {},
+        clause_scores: analysisResult.clause_scores || Record<string, unknown>,
         evidence_chunks: Array.isArray(analysisResult.evidence_chunks) 
           ? analysisResult.evidence_chunks 
           : []
@@ -336,7 +336,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
         impact: 'Compliance verification pending'
       }],
       analysis_summary: 'Automated analysis encountered an error. Manual review recommended.',
-      clause_scores: {},
+      clause_scores: Record<string, unknown>,
       evidence_chunks: []
     };
   }

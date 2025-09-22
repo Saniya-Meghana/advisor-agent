@@ -98,7 +98,7 @@ serve(async (req) => {
         user_id: user.id,
         content: aiResponse.response,
         message_type: 'assistant',
-        metadata: aiResponse.metadata || {}
+        metadata: aiResponse.metadata || Record<string, unknown>
       });
 
     console.log('Flowise integration completed successfully');
@@ -110,7 +110,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in flowise-integration function:', error);
     return new Response(
       JSON.stringify({ 
@@ -248,7 +248,7 @@ Be professional, accurate, and helpful.`
       }
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Flowise API error:', error);
     return null;
   }
@@ -326,7 +326,7 @@ Always structure responses with:
       }
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Fallback AI error:', error);
     throw error;
   }

@@ -129,7 +129,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
       });
 
       onUploadComplete?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
       setUploadFiles(prev => prev.map(f =>
         f.id === uploadFile.id ? {

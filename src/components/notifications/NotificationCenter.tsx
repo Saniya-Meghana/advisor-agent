@@ -62,7 +62,7 @@ const NotificationCenter = () => {
 
       if (error) throw error;
       setNotifications((data || []) as Notification[]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching notifications:', error);
       toast({
         title: "Error",
@@ -93,7 +93,7 @@ const NotificationCenter = () => {
             : notif
         )
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error marking notification as read:', error);
       toast({
         title: "Error",
@@ -123,7 +123,7 @@ const NotificationCenter = () => {
         title: "Success",
         description: "All notifications marked as read",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error marking all notifications as read:', error);
       toast({
         title: "Error",
@@ -153,7 +153,7 @@ const NotificationCenter = () => {
         title: "Success",
         description: "Notification deleted",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting notification:', error);
       toast({
         title: "Error",

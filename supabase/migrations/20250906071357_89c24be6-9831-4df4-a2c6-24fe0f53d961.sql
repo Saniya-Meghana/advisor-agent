@@ -44,7 +44,7 @@ CREATE TABLE public.chat_messages (
   user_id UUID NOT NULL,
   message_type TEXT NOT NULL CHECK (message_type IN ('user', 'assistant')),
   content TEXT NOT NULL,
-  metadata JSONB DEFAULT '{}',
+  metadata JSONB DEFAULT 'Record<string, unknown>',
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
@@ -55,7 +55,7 @@ CREATE TABLE public.document_embeddings (
   chunk_index INTEGER NOT NULL,
   chunk_text TEXT NOT NULL,
   embedding_model TEXT NOT NULL,
-  metadata JSONB DEFAULT '{}',
+  metadata JSONB DEFAULT 'Record<string, unknown>',
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
