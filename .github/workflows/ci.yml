@@ -1,0 +1,17 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with: { node-version: '20' }
+    - run: npm install
+    - run: npm run lint
+    - run: npm test
+    - name: Syft SBOM
+      run: syft packages dir:. -o json > sbom.json
+    - name: Trivy Scan
+      run: trivy fs --exit-code 1 .

@@ -7,7 +7,8 @@ import {
   Settings,
   HelpCircle,
   LogOut,
-  MessageCircle
+  User,
+  Bell
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -19,9 +20,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -29,7 +32,6 @@ const navigationItems = [
   { title: "Audit Log", url: "/audit", icon: ScrollText },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Help", url: "/onboarding", icon: HelpCircle },
-  { title: "Compliance Assistant", url: "/assistant", icon: MessageCircle }, // 👈 Added here
 ];
 
 export function AppSidebar() {
@@ -43,8 +45,8 @@ export function AppSidebar() {
   };
 
   const getNavCls = (active: boolean) =>
-    active
-      ? "bg-primary/10 text-primary font-medium border-r-2 border-primary"
+    active 
+      ? "bg-primary/10 text-primary font-medium border-r-2 border-primary" 
       : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
 
   return (
@@ -68,14 +70,16 @@ export function AppSidebar() {
           <div className="flex items-center space-x-3">
             <Avatar className="h-8 w-8">
               <AvatarFallback className="bg-muted">
-                {user?.email?.charAt(0).toUpperCase() || "U"}
+                {user?.email?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
               <p className="text-sm font-medium truncate">
-                {user?.user_metadata?.full_name || "User"}
+                {user?.user_metadata?.full_name || 'User'}
               </p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email}
+              </p>
             </div>
           </div>
         </div>
@@ -88,7 +92,10 @@ export function AppSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavCls(isActive(item.url))}>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavCls(isActive(item.url))}
+                    >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </NavLink>
@@ -108,9 +115,7 @@ export function AppSidebar() {
             className="w-full justify-start"
           >
             <LogOut className="h-4 w-4" />
-            <span className="ml-2 group-data-[collapsible=icon]:hidden">
-              Sign out
-            </span>
+            <span className="ml-2 group-data-[collapsible=icon]:hidden">Sign out</span>
           </Button>
         </div>
       </SidebarContent>

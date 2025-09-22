@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import EnhancedComplianceChat from "@/components/chat/EnhancedComplianceChat"; // 👈 import added
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -29,7 +30,6 @@ const navigationItems = [
   { title: "Audit Log", url: "/audit", icon: ScrollText },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Help", url: "/onboarding", icon: HelpCircle },
-  { title: "Compliance Assistant", url: "/assistant", icon: MessageCircle }, // 👈 Added here
 ];
 
 export function AppSidebar() {
@@ -96,6 +96,16 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Compliance Assistant */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Compliance Assistant</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="p-2 h-64 overflow-y-auto rounded-md border bg-muted/30">
+              <EnhancedComplianceChat />
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
 

@@ -29,18 +29,13 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const queryClient = new QueryClient();
 
-// ------------------------
-// Loading fallback component
-// ------------------------
 function LoadingFallback({ fullScreen }: { fullScreen?: boolean }) {
   if (fullScreen) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto" />
-          <p className="mt-3 text-muted-foreground">
-            Loading application, please wait…
-          </p>
+          <p className="mt-3 text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -49,14 +44,11 @@ function LoadingFallback({ fullScreen }: { fullScreen?: boolean }) {
   return (
     <div className="flex items-center">
       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-      <span className="text-sm text-muted-foreground">Loading content…</span>
+      <span className="text-sm text-muted-foreground">Loading...</span>
     </div>
   );
 }
 
-// ------------------------
-// Error boundary
-// ------------------------
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, { hasError: boolean }> {
   state = { hasError: false };
 
@@ -65,7 +57,8 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, { hasEr
   }
 
   componentDidCatch(error: any, info: any) {
-    // TODO: integrate telemetry (Sentry/Datadog)
+    // TODO: wire to telemetry (Sentry/Datadog)
+    // console.error("Unhandled error:", error, info);
   }
 
   render() {
@@ -73,12 +66,8 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, { hasEr
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center max-w-md">
-            <h1 className="text-2xl font-semibold text-red-600">
-              An unexpected error occurred
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              Please refresh the page, or contact support if the issue persists.
-            </p>
+            <h1 className="text-2xl font-semibold">Something went wrong</h1>
+            <p className="mt-2 text-muted-foreground">Try refreshing the page or contact support.</p>
           </div>
         </div>
       );
@@ -87,9 +76,6 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, { hasEr
   }
 }
 
-// ------------------------
-// Routes configuration
-// ------------------------
 type AppRoute = {
   path: string;
   element: React.ReactNode;
@@ -99,29 +85,29 @@ type AppRoute = {
 const routes: AppRoute[] = [
   { path: "/", element: <Index />, protected: true },
   { path: "/dashboard", element: <Dashboard />, protected: true },
+
   { path: "/documents", element: <Documents />, protected: true },
   { path: "/audit", element: <AuditLog />, protected: true },
   { path: "/settings", element: <Settings />, protected: true },
+
   { path: "/assistant", element: <Assistant />, protected: true },
+
   { path: "/onboarding", element: <Onboarding />, protected: true },
   { path: "/admin", element: <AdminPanel />, protected: true },
   { path: "/notifications", element: <NotificationCenter />, protected: true },
+
   { path: "/auth", element: <Auth />, protected: false },
   { path: "*", element: <NotFound />, protected: false },
 ];
 
-// ------------------------
-// App content
-// ------------------------
 const AppContent = () => {
   const { user, loading } = useAuth();
 
-  // Show global loading state
   if (loading) {
     return <LoadingFallback fullScreen />;
   }
 
-  // Public routes for unauthenticated users
+  // Unauthenticated: restrict to public routes (auth & not found)
   if (!user) {
     return (
       <Suspense fallback={<LoadingFallback fullScreen />}>
@@ -133,7 +119,7 @@ const AppContent = () => {
     );
   }
 
-  // Protected routes for authenticated users
+  // Authenticated: app layout + protected routing
   return (
     <AppLayout>
       <ErrorBoundary>
@@ -151,17 +137,15 @@ const AppContent = () => {
   );
 };
 
-// ------------------------
-// App component
-// ------------------------
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
-        {/* Global Toast Notifications */}
+        {/* Toasts */}
         <Toaster />
         <Sonner />
 
+        {/* Routing */}
         <BrowserRouter>
           <AppContent />
         </BrowserRouter>
