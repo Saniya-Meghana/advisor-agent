@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .history/
 .history/
+# Supabase function backups
+supabase_backup/supabase/functions_backup/
+supabase_backup/supabase/functions_backup_full/
+
