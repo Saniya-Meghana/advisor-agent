@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
@@ -15,7 +15,7 @@ interface NotificationRequest {
   risk_level: string;
   compliance_score: number;
   notification_type?: 'analysis_complete' | 'scheduled_scan' | 'webhook_alert';
-  additional_data?: any;
+  additional_data?: Record<string, unknown>;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,7 +24,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const supabaseClient = createClient(
+    const supabaseClient: SupabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
@@ -95,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: unknown) {
     console.error("Error in send-notification-email function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error).message }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -133,7 +133,7 @@ function generateEmailHTML(data: {
   risk_level: string;
   compliance_score: number;
   notification_type: string;
-  additional_data?: any;
+  additional_data?: Record<string, unknown>;
 }): string {
   const riskColor = getRiskColor(data.risk_level);
   
@@ -203,7 +203,7 @@ function generateEmailHTML(data: {
       ` : ''}
       
       <div style="text-align: center; margin: 32px 0;">
-        <a href="${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'lovable.app') || '#'}" class="cta-button">
+        <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.app') || '#'}" class="cta-button">
           View Detailed Report
         </a>
       </div>
