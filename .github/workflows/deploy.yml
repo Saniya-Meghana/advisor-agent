@@ -1,16 +1,35 @@
 name: Deploy
-on: { push: { branches: [main] } }
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with: { terraform_version: 1.7.6 }
-    - name: Terraform Init
-      run: terraform -chdir=infra init
-    - name: Terraform Apply
-      run: terraform -chdir=infra apply -auto-approve
-    - name: ArgoCD Sync
-      run: argocd app sync advisor-agent
+      - uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.6.0"  # <-- stable version
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infra
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./infra
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: ./infra
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./infra
+
+      - name: ArgoCD Sync
+        run: argocd app sync advisor-agent
