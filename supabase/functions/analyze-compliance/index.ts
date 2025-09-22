@@ -1,6 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -33,18 +33,29 @@ interface ComplianceAnalysisResult {
   }>;
 }
 
+interface RegulationTemplate {
+  id: string;
+  name: string;
+  description: string;
+  template_data: Record<string, unknown>;
+  is_active: boolean;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let document_id;
+
   try {
-    const supabaseClient = createClient(
+    const supabaseClient: SupabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    const { document_id } = await req.json();
+    const requestBody = await req.json();
+    document_id = requestBody.document_id;
     
     if (!document_id) {
       throw new Error('Document ID is required');
@@ -155,10 +166,8 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error('Error in analyze-compliance function:', error);
     
-    // Update document status to error if document_id exists
-    try {
-      const { document_id } = await req.json();
-      if (document_id) {
+    if (document_id) {
+      try {
         const supabaseClient = createClient(
           Deno.env.get('SUPABASE_URL') ?? '',
           Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -168,14 +177,14 @@ serve(async (req) => {
           .from('documents')
           .update({ processing_status: 'error' })
           .eq('id', document_id);
+      } catch (updateError) {
+        console.error('Failed to update document status:', updateError);
       }
-    } catch (updateError) {
-      console.error('Failed to update document status:', updateError);
     }
 
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Internal server error',
+        error: (error as Error).message || 'Internal server error',
         success: false 
       }),
       {
@@ -189,7 +198,7 @@ serve(async (req) => {
 async function analyzeDocumentWithAI(
   documentText: string, 
   filename: string, 
-  templates: any[]
+  templates: RegulationTemplate[]
 ): Promise<ComplianceAnalysisResult> {
   const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   
@@ -279,6 +288,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
         ],
         max_tokens: 4000,
         temperature: 0.1,
+        response_format: { type: "json_object" }
       }),
     });
 
@@ -305,7 +315,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
           ? analysisResult.recommendations 
           : [],
         analysis_summary: analysisResult.analysis_summary || 'Analysis completed',
-        clause_scores: analysisResult.clause_scores || Record<string, unknown>,
+        clause_scores: typeof analysisResult.clause_scores === 'object' && analysisResult.clause_scores !== null ? analysisResult.clause_scores : {},
         evidence_chunks: Array.isArray(analysisResult.evidence_chunks) 
           ? analysisResult.evidence_chunks 
           : []
@@ -315,7 +325,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
       throw new Error('Invalid AI response format');
     }
 
-  } catch (aiError: any) {
+  } catch (aiError: unknown) {
     console.error('AI analysis error:', aiError);
     
     // Return default analysis on AI failure
@@ -325,7 +335,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
       issues_detected: [{
         category: 'Analysis Error',
         severity: 'MEDIUM',
-        description: 'AI analysis failed - manual review required',
+        description: `AI analysis failed: ${(aiError as Error).message}`,
         recommendation: 'Please review document manually or retry analysis',
         regulation: 'General'
       }],
@@ -336,7 +346,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
         impact: 'Compliance verification pending'
       }],
       analysis_summary: 'Automated analysis encountered an error. Manual review recommended.',
-      clause_scores: Record<string, unknown>,
+      clause_scores: {},
       evidence_chunks: []
     };
   }

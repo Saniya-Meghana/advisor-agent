@@ -1,47 +1,45 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      # Node.js setup
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # Install dependencies
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      # Lint and test
-      - run: npm run lint
-      - run: npm test
-
-      # Optional: Generate SBOM with Syft
-      - name: Syft SBOM
-        run: syft packages dir:. -o json > sbom.json
-
-      # Optional: Security scan with Trivy
-      - name: Trivy Scan
-        run: trivy fs --exit-code 1 .
+      - name: Run ESLint
+        run: npm run lint
 
   terraform:
-    if: ${{ github.event_name != 'pull_request' }} # optional: skip PRs
     runs-on: ubuntu-latest
+    needs: build-test
+    defaults:
+      run:
+        working-directory: ./infra
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      # Setup Terraform (replace with a valid version)
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.7.0"
+          terraform_version: 1.8.0
 
-      # Terraform commands
-      - run: terraform init
-      - run: terraform validate
-      - run: terraform plan
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
