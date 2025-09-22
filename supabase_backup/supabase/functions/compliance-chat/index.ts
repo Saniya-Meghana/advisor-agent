@@ -72,7 +72,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Compliance chat error:', error);
     return new Response(
       JSON.stringify({ 
@@ -89,9 +89,9 @@ serve(async (req) => {
 
 function buildContext(
   message: string, 
-  documents: any[], 
-  reports: any[], 
-  recentMessages: any[]
+  documents: unknown[], 
+  reports: unknown[], 
+  recentMessages: unknown[]
 ): string {
   let context = `User Question: ${message}\n\n`;
 
@@ -132,7 +132,7 @@ function buildContext(
 
 async function getComplianceAdvice(context: string): Promise<{
   response: string;
-  metadata: any;
+  metadata: unknown;
 }> {
   const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   

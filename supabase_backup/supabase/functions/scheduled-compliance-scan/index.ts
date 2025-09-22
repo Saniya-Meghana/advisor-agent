@@ -83,7 +83,7 @@ serve(async (req) => {
 
         return { document_id: doc.id, status: 'completed', data };
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error(`Error processing document ${doc.id}:`, error);
         return { document_id: doc.id, status: 'error', error: error.message };
       }
@@ -145,7 +145,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in scheduled-compliance-scan function:', error);
     return new Response(
       JSON.stringify({ 
@@ -160,7 +160,7 @@ serve(async (req) => {
   }
 });
 
-async function getDocumentsForScan(supabaseClient: any, config: ScanConfiguration) {
+async function getDocumentsForScan(supabaseClient: unknown, config: ScanConfiguration) {
   let query = supabaseClient
     .from('documents')
     .select('*')
@@ -190,7 +190,7 @@ async function getDocumentsForScan(supabaseClient: any, config: ScanConfiguratio
   return documents || [];
 }
 
-async function shouldAnalyzeDocument(supabaseClient: any, document: any, scanType: string): Promise<boolean> {
+async function shouldAnalyzeDocument(supabaseClient: unknown, document: unknown, scanType: string): Promise<boolean> {
   if (scanType === 'full') {
     return true;
   }
@@ -214,14 +214,14 @@ async function shouldAnalyzeDocument(supabaseClient: any, document: any, scanTyp
   return daysSinceAnalysis > 30;
 }
 
-async function generateScanSummary(supabaseClient: any, documentResults: any[], scanResults: any) {
+async function generateScanSummary(supabaseClient: unknown, documentResults: unknown[], scanResults: unknown) {
   const summary = {
     total_documents: documentResults.length,
     processed: documentResults.filter(r => r.status === 'completed').length,
     skipped: documentResults.filter(r => r.status === 'skipped').length,
     errors: documentResults.filter(r => r.status === 'error').length,
     risk_distribution: Record<string, unknown> as Record<string, number>,
-    top_issues: [] as any[],
+    top_issues: [] as unknown[],
     recommendations: [] as string[]
   };
 
@@ -265,7 +265,7 @@ async function generateScanSummary(supabaseClient: any, documentResults: any[], 
   return summary;
 }
 
-async function sendScanNotifications(supabaseClient: any, config: ScanConfiguration, summary: any) {
+async function sendScanNotifications(supabaseClient: unknown, config: ScanConfiguration, summary: unknown) {
   if (!config.user_id) return;
 
   try {

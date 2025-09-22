@@ -13,7 +13,7 @@ interface FlowiseRequest {
   context?: {
     document_ids?: string[];
     regulation_templates?: string[];
-    user_preferences?: any;
+    user_preferences?: unknown;
   };
 }
 
@@ -110,7 +110,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in flowise-integration function:', error);
     return new Response(
       JSON.stringify({ 
@@ -126,8 +126,8 @@ serve(async (req) => {
   }
 });
 
-async function buildChatContext(supabaseClient: any, userId: string, context?: any) {
-  const contextData: any = {
+async function buildChatContext(supabaseClient: unknown, userId: string, context?: unknown) {
+  const contextData: unknown = {
     user_id: userId,
     recent_reports: [],
     active_regulations: [],
@@ -187,7 +187,7 @@ async function buildChatContext(supabaseClient: any, userId: string, context?: a
   return contextData;
 }
 
-async function processWithFlowise(message: string, context: any): Promise<FlowiseResponse | null> {
+async function processWithFlowise(message: string, context: unknown): Promise<FlowiseResponse | null> {
   const flowiseUrl = Deno.env.get('FLOWISE_API_URL');
   const flowiseApiKey = Deno.env.get('FLOWISE_API_KEY');
 
@@ -243,18 +243,18 @@ Be professional, accurate, and helpful.`
       session_id: context.user_id,
       metadata: {
         confidence: 0.9,
-        sources: data.sourceDocuments?.map((doc: any) => doc.metadata?.source) || [],
+        sources: data.sourceDocuments?.map((doc: unknown) => doc.metadata?.source) || [],
         recommendations: extractRecommendations(data.text || data.answer)
       }
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Flowise API error:', error);
     return null;
   }
 }
 
-async function processWithFallbackAI(message: string, context: any): Promise<FlowiseResponse> {
+async function processWithFallbackAI(message: string, context: unknown): Promise<FlowiseResponse> {
   const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   
   if (!openaiApiKey) {
@@ -326,7 +326,7 @@ Always structure responses with:
       }
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Fallback AI error:', error);
     throw error;
   }

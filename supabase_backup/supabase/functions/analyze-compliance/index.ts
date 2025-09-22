@@ -152,7 +152,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in analyze-compliance function:', error);
     
     // Update document status to error if document_id exists
@@ -189,7 +189,7 @@ serve(async (req) => {
 async function analyzeDocumentWithAI(
   documentText: string, 
   filename: string, 
-  templates: any[]
+  templates: unknown[]
 ): Promise<ComplianceAnalysisResult> {
   const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   
@@ -315,7 +315,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
       throw new Error('Invalid AI response format');
     }
 
-  } catch (aiError: any) {
+  } catch (aiError: unknown) {
     console.error('AI analysis error:', aiError);
     
     // Return default analysis on AI failure

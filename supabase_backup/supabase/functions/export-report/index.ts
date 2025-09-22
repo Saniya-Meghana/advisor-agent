@@ -57,7 +57,7 @@ serve(async (req) => {
       throw new Error('No reports found');
     }
 
-    let exportData: any;
+    let exportData: unknown;
     let contentType: string;
     let filename: string;
 
@@ -119,7 +119,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in export-report function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
@@ -131,7 +131,7 @@ serve(async (req) => {
   }
 });
 
-function generateJSONExport(reports: any[]): string {
+function generateJSONExport(reports: unknown[]): string {
   const exportData = {
     export_date: new Date().toISOString(),
     total_reports: reports.length,
@@ -153,7 +153,7 @@ function generateJSONExport(reports: any[]): string {
   return JSON.stringify(exportData, null, 2);
 }
 
-function generateCSVExport(reports: any[]): string {
+function generateCSVExport(reports: unknown[]): string {
   const headers = [
     'Report ID',
     'Document Name',
@@ -179,14 +179,14 @@ function generateCSVExport(reports: any[]): string {
   return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
 }
 
-async function generateExcelExport(reports: any[]): Promise<ArrayBuffer> {
+async function generateExcelExport(reports: unknown[]): Promise<ArrayBuffer> {
   // For production, you would use a library like exceljs
   // For now, return CSV data as fallback
   const csvData = generateCSVExport(reports);
   return new TextEncoder().encode(csvData).buffer;
 }
 
-async function generatePDFExport(reports: any[], includeCharts: boolean): Promise<ArrayBuffer> {
+async function generatePDFExport(reports: unknown[], includeCharts: boolean): Promise<ArrayBuffer> {
   // For production, you would use a library like puppeteer or jsPDF
   // For now, return HTML content that could be converted to PDF
   const htmlContent = generateHTMLReport(reports, includeCharts);
@@ -195,7 +195,7 @@ async function generatePDFExport(reports: any[], includeCharts: boolean): Promis
   return new TextEncoder().encode(htmlContent).buffer;
 }
 
-function generateHTMLReport(reports: any[], includeCharts: boolean): string {
+function generateHTMLReport(reports: unknown[], includeCharts: boolean): string {
   const totalReports = reports.length;
   const avgScore = reports.reduce((sum, r) => sum + (r.compliance_score || 0), 0) / totalReports;
   const riskDistribution = reports.reduce((acc, r) => {
@@ -253,7 +253,7 @@ function generateHTMLReport(reports: any[], includeCharts: boolean): string {
       ${Array.isArray(report.issues_detected) && report.issues_detected.length > 0 ? `
         <h4>Issues Detected (${report.issues_detected.length})</h4>
         <ul>
-          ${report.issues_detected.map((issue: any) => `
+          ${report.issues_detected.map((issue: unknown) => `
             <li><strong>${issue.category}</strong> (${issue.severity}): ${issue.description}</li>
           `).join('')}
         </ul>
@@ -262,7 +262,7 @@ function generateHTMLReport(reports: any[], includeCharts: boolean): string {
       ${Array.isArray(report.recommendations) && report.recommendations.length > 0 ? `
         <h4>Recommendations (${report.recommendations.length})</h4>
         <ul>
-          ${report.recommendations.map((rec: any) => `
+          ${report.recommendations.map((rec: unknown) => `
             <li><strong>${rec.priority} Priority:</strong> ${rec.action}</li>
           `).join('')}
         </ul>

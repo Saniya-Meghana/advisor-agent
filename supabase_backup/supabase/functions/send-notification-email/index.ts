@@ -15,7 +15,7 @@ interface NotificationRequest {
   risk_level: string;
   compliance_score: number;
   notification_type?: 'analysis_complete' | 'scheduled_scan' | 'webhook_alert';
-  additional_data?: any;
+  additional_data?: unknown;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-notification-email function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
@@ -133,7 +133,7 @@ function generateEmailHTML(data: {
   risk_level: string;
   compliance_score: number;
   notification_type: string;
-  additional_data?: any;
+  additional_data?: unknown;
 }): string {
   const riskColor = getRiskColor(data.risk_level);
   
