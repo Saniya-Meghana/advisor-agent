@@ -72,7 +72,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const supabaseClient = createClient(
+    const supabaseClient: SupabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
@@ -131,7 +131,7 @@ serve(async (req: Request) => {
     // Log webhook event processing
     await supabaseClient.functions.invoke('log-audit-event', {
       body: {
-        user_id: webhookEvent.data.user_id || null,
+        user_id: webhookEvent.data.user_id as string || null,
         action: 'webhook_processed',
         resource_type: 'webhook',
         details: {
@@ -177,9 +177,10 @@ serve(async (req: Request) => {
 async function verifyWebhookSignature(payload: string, signature: string, secret: string): Promise<boolean> {
   try {
     const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
     const key = await crypto.subtle.importKey(
       'raw',
-      encoder.encode(secret),
+      keyData,
       { name: 'HMAC', hash: 'SHA-256' },
       false,
       ['sign']
@@ -283,27 +284,31 @@ async function handleRegulationUpdated(supabaseClient: SupabaseClient, data: Reg
     const { regulation_name, update_type, affected_documents } = data;
     
     // Get all users who have documents affected by this regulation
-    const { data: affectedUsers } = await supabaseClient
-      .from('documents')
-      .select('user_id')
-      .in('id', affected_documents || []);
-    
-    if (affectedUsers?.length) {
-      const uniqueUsers = [...new Set(affectedUsers.map(u => u.user_id))];
+    if (affected_documents && affected_documents.length > 0) {
+      const { data: affectedUsers, error: userError } = await supabaseClient
+        .from('documents')
+        .select('user_id')
+        .in('id', affected_documents);
       
-      // Create notifications for affected users
-      const notifications = uniqueUsers.map(user_id => ({
-        user_id,
-        type: 'info',
-        title: 'Regulation Update',
-        message: `${regulation_name} has been updated (${update_type}). Your documents may need re-analysis.`
-      }));
+      if(userError) throw userError;
       
-      await supabaseClient
-        .from('notifications')
-        .insert(notifications);
-      
-      actions.push(`notified_${uniqueUsers.length}_users`);
+      if (affectedUsers?.length) {
+        const uniqueUsers = [...new Set(affectedUsers.map(u => u.user_id))];
+        
+        // Create notifications for affected users
+        const notifications = uniqueUsers.map(user_id => ({
+          user_id,
+          type: 'info',
+          title: 'Regulation Update',
+          message: `${regulation_name} has been updated (${update_type}). Your documents may need re-analysis.`
+        }));
+        
+        await supabaseClient
+          .from('notifications')
+          .insert(notifications);
+        
+        actions.push(`notified_${uniqueUsers.length}_users`);
+      }
     }
     
     // Schedule re-analysis for affected documents
@@ -354,14 +359,16 @@ async function handleSystemAlert(supabaseClient: SupabaseClient, data: SystemAle
     const { alert_type, severity, message, affected_users } = data;
     
     // Create system-wide notifications if no specific users
-    const targetUsers = affected_users || [];
+    const targetUsers: string[] = affected_users || [];
     
     if (targetUsers.length === 0 && severity === 'critical') {
       // Get all active users for critical system alerts
-      const { data: allUsers } = await supabaseClient
+      const { data: allUsers, error: userError } = await supabaseClient
         .from('profiles')
         .select('user_id')
         .limit(100);
+
+      if(userError) throw userError;
       
       if (allUsers) {
         targetUsers.push(...allUsers.map(u => u.user_id));
@@ -428,11 +435,12 @@ async function handleGenericEvent(supabaseClient: SupabaseClient, event: Webhook
     console.log('Processing generic webhook event:', event);
     
     // Basic notification for unhandled events if user_id is present
-    if (event.data.user_id) {
+    const userId = event.data.user_id as string | undefined;
+    if (userId) {
       await supabaseClient
         .from('notifications')
         .insert({
-          user_id: event.data.user_id,
+          user_id: userId,
           type: 'info',
           title: 'System Event',
           message: `Event received: ${event.event_type}`

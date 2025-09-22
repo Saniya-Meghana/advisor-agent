@@ -18,6 +18,10 @@ interface NotificationRequest {
   additional_data?: Record<string, unknown>;
 }
 
+interface EmailResponse {
+  id: string;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -49,7 +53,6 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('User profile not found');
     }
 
-    const riskColor = getRiskColor(risk_level);
     const subject = getEmailSubject(notification_type, risk_level, document_name);
     const htmlContent = generateEmailHTML({
       user_name: profile.full_name || 'User',
@@ -60,12 +63,16 @@ const handler = async (req: Request): Promise<Response> => {
       additional_data
     });
 
-    const emailResponse = await resend.emails.send({
+    const { data: emailResponse, error: emailError } = await resend.emails.send({
       from: "Compliance Assistant <noreply@yourdomain.com>",
       to: [profile.email],
       subject,
       html: htmlContent,
     });
+
+    if (emailError) {
+      throw new Error('Failed to send email');
+    }
 
     console.log("Email sent successfully:", emailResponse);
 
@@ -79,14 +86,14 @@ const handler = async (req: Request): Promise<Response> => {
           notification_type,
           document_name,
           risk_level,
-          email_id: emailResponse.data?.id
+          email_id: (emailResponse as EmailResponse)?.id
         }
       }
     });
 
     return new Response(JSON.stringify({ 
       success: true,
-      email_id: emailResponse.data?.id
+      email_id: (emailResponse as EmailResponse)?.id
     }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
