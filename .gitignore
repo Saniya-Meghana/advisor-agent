@@ -28,3 +28,4 @@ dist-ssr
 supabase_backup/supabase/functions_backup/
 supabase_backup/supabase/functions_backup_full/
 
+.terraform/
