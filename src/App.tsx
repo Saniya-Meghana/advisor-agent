@@ -64,7 +64,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<Record<strin
     return { hasError: true };
   }
 
-  componentDidCatch(error: any, info: any) {
+  componentDidCatch(params: unknown) {
     // TODO: integrate telemetry (Sentry/Datadog)
   }
 

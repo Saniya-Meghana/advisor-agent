@@ -29,10 +29,10 @@ interface DashboardData {
   lowRiskDocuments: number;
   pendingAnalyses: number;
   averageRiskScore: number;
-  recentAnalyses: any[];
-  complianceByRegulation: any[];
-  riskTrends: any[];
-  topRedFlags: any[];
+  recentAnalyses: unknown[];
+  complianceByRegulation: unknown[];
+  riskTrends: unknown[];
+  topRedFlags: unknown[];
   unreadNotifications: number;
 }
 
@@ -181,7 +181,7 @@ const RiskDashboard = () => {
         unreadNotifications: notifications?.length || 0
       });
 
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error fetching dashboard data:', error);
       toast({
         title: "Error",

@@ -57,7 +57,7 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportIds, onExportComplete
 
       onExportComplete?.();
 
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Export error:', error);
       toast({
         title: "Export failed",
@@ -86,7 +86,7 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportIds, onExportComplete
 
         <div>
           <label className="text-sm font-medium mb-2 block">Export Format</label>
-          <Select value={selectedFormat} onValueChange={(value: any) => setSelectedFormat(value)}>
+          <Select value={selectedFormat} onValueChange={(params: unknown) => setSelectedFormat(value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

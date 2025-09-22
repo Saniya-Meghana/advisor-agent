@@ -57,7 +57,7 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportIds, onExportComplete
 
       onExportComplete?.();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Export error:', error);
       toast({
         title: "Export failed",

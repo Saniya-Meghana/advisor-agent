@@ -15,8 +15,8 @@ interface ComplianceReport {
   document_id: string;
   risk_level: string;
   compliance_score: number;
-  issues_detected: any; // JSONB from database
-  recommendations: any; // JSONB from database
+  issues_detected: unknown; // JSONB from database
+  recommendations: unknown; // JSONB from database
   analysis_summary: string;
   generated_at: string;
   documents: {
@@ -46,7 +46,7 @@ const ComplianceReports = () => {
       if (error) throw error;
 
       setReports(data || []);
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error fetching compliance reports:', error);
       toast({
         title: "Error",
@@ -129,7 +129,7 @@ const ComplianceReports = () => {
         title: "Report exported",
         description: "Professional compliance report has been generated and downloaded",
       });
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Export error:', error);
       toast({
         title: "Export failed",

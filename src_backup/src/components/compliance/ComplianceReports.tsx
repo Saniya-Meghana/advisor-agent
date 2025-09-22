@@ -46,7 +46,7 @@ const ComplianceReports = () => {
       if (error) throw error;
 
       setReports(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching compliance reports:', error);
       toast({
         title: "Error",
@@ -129,7 +129,7 @@ const ComplianceReports = () => {
         title: "Report exported",
         description: "Professional compliance report has been generated and downloaded",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Export error:', error);
       toast({
         title: "Export failed",

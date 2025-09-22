@@ -42,7 +42,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
         .order('created_at', { ascending: false });
       if (error) throw error;
       setDocuments(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching documents:', error);
       toast({ title: "Error", description: "Failed to load documents", variant: "destructive" });
     } finally {
@@ -65,7 +65,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast({ title: "Download started", description: `${doc.original_name} is downloading` });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Download error:', error);
       toast({ title: "Download failed", description: error.message || 'Failed to download document', variant: "destructive" });
     }
@@ -93,7 +93,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
           risk_level: "medium",
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Delete error:', error);
       toast({ title: "Delete failed", description: error.message || 'Failed to delete document', variant: "destructive" });
     }
@@ -116,7 +116,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
           risk_level: "low",
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Retry analysis error:', error);
       toast({ title: "Failed to retry", description: error.message || 'Failed to queue document for analysis', variant: "destructive" });
     }

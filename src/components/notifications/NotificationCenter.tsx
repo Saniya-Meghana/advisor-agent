@@ -62,7 +62,7 @@ const NotificationCenter = () => {
 
       if (error) throw error;
       setNotifications((data || []) as Notification[]);
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error fetching notifications:', error);
       toast({
         title: "Error",
@@ -93,7 +93,7 @@ const NotificationCenter = () => {
             : notif
         )
       );
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error marking notification as read:', error);
       toast({
         title: "Error",
@@ -123,7 +123,7 @@ const NotificationCenter = () => {
         title: "Success",
         description: "All notifications marked as read",
       });
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error marking all notifications as read:', error);
       toast({
         title: "Error",
@@ -153,7 +153,7 @@ const NotificationCenter = () => {
         title: "Success",
         description: "Notification deleted",
       });
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error deleting notification:', error);
       toast({
         title: "Error",
@@ -232,7 +232,7 @@ const NotificationCenter = () => {
         </div>
       </div>
 
-      <Tabs value={filter} onValueChange={(value) => setFilter(value as any)} className="space-y-6">
+      <Tabs value={filter} onValueChange={(value) => setFilter(value as unknown)} className="space-y-6">
         <TabsList>
           <TabsTrigger value="all">All ({notifications.length})</TabsTrigger>
           <TabsTrigger value="unread">Unread ({unreadCount})</TabsTrigger>
@@ -280,7 +280,7 @@ const NotificationCenter = () => {
                                   New
                                 </Badge>
                               )}
-                              <Badge variant={getNotificationVariant(notification.type) as any} className="text-xs">
+                              <Badge variant={getNotificationVariant(notification.type) as unknown} className="text-xs">
                                 {notification.type}
                               </Badge>
                             </div>

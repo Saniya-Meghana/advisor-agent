@@ -65,7 +65,7 @@ const Settings = () => {
           role: data.role || '',
         });
       }
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error fetching profile:', error);
       toast({
         title: "Error",
@@ -114,7 +114,7 @@ const Settings = () => {
         title: "Profile updated",
         description: "Your profile information has been saved",
       });
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error saving profile:', error);
       toast({
         title: "Save failed",
@@ -162,7 +162,7 @@ const Settings = () => {
         title: "Account deletion requested",
         description: "Please contact support to complete account deletion",
       });
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error deleting account:', error);
       toast({
         title: "Delete failed",

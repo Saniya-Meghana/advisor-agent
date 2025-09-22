@@ -181,7 +181,7 @@ const RiskDashboard = () => {
         unreadNotifications: notifications?.length || 0
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching dashboard data:', error);
       toast({
         title: "Error",

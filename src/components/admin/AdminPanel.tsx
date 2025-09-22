@@ -20,7 +20,7 @@ interface RegulationTemplate {
   name: string;
   description: string;
   version: string;
-  template_data: any;
+  template_data: unknown;
   is_active: boolean;
   created_at: string;
 }
@@ -41,7 +41,7 @@ interface AuditLog {
   action: string;
   resource_type: string;
   timestamp: string;
-  details: any;
+  details: unknown;
   profiles?: {
     email: string;
     full_name: string;
@@ -164,7 +164,7 @@ const AdminPanel = () => {
         setAuditLogs([]);
       }
 
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error fetching data:', error);
       toast({
         title: "Error",
@@ -233,7 +233,7 @@ const AdminPanel = () => {
       setTemplateForm({ name: '', description: '', version: '1.0', template_data: '' });
       setSelectedTemplate(null);
       fetchData();
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error saving template:', error);
       toast({
         title: "Error",
@@ -271,7 +271,7 @@ const AdminPanel = () => {
       });
 
       fetchData();
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error updating user role:', error);
       toast({
         title: "Error",
@@ -298,7 +298,7 @@ const AdminPanel = () => {
       });
 
       fetchData();
-    } catch (error: unknown) {
+    } catch (params: unknown) {
       console.error('Error updating template status:', error);
       toast({
         title: "Error",
