@@ -31,3 +31,4 @@ supabase_backup/supabase/functions_backup_full/
 .terraform/
 .terraform/
 .terraform/
+.terraform/
