@@ -1,141 +1,98 @@
-# 🛡️ Risk & Compliance Advisor Agent
+# AI-Powered Compliance Document Analysis
 
-A modular AI-powered assistant for legal Q&A, risk detection, and compliance reporting. Built with microservices and RAG architecture, it supports multilingual advice, red flag classification, and traceable citations.
+This project is a web-based application that helps businesses analyze their compliance documents for potential risks. It uses a FastAPI backend for the risk analysis engine and a React frontend for the user interface.
 
-**Live Demo:** [lovable.dev/projects/ef01753e-54ad-45f2-ba74-c0eca1042939](https://lovable.dev/projects/ef01753e-54ad-45f2-ba74-c0eca1042939)  
-**Tech Stack:** Vite · TypeScript · React · Tailwind CSS · shadcn-ui · FastAPI · Supabase · Hugging Face · FAISS · Docker · n8n
+## Features
 
----
+- **Document Upload:** Users can upload their compliance documents (e.g., contracts, policies, legal agreements) in various formats (e.g., PDF, DOCX).
+- **AI-Powered Risk Analysis:** The backend uses an AI engine to analyze the uploaded documents and identify potential risks, inconsistencies, or areas of concern.
+- **Risk Scoring:** Each identified risk is assigned a severity score (e.g., low, medium, high) to help users prioritize their attention.
+- **Detailed Reporting:** The application generates a comprehensive report that summarizes the identified risks, provides context-aware explanations, and suggests mitigation strategies.
+- **PDF Export:** Users can export the risk analysis report as a PDF for easy sharing and record-keeping.
+- **User-Friendly Interface:** The React-based frontend provides an intuitive and easy-to-use interface for uploading documents and viewing the analysis results.
 
-## 🧠 Features
+## Project Structure
 
-- **Document Ingestion**: PDF/DOCX/CSV parsing with OCR (Textract/Tesseract)
-- **RAG Agent**: Context-aware retrieval using SentenceTransformers + FAISS
-- **LLM Integration**: OpenAI, Claude, or Hugging Face models via FastAPI
-- **Red Flag Classifier**: LegalBERT/RoBERTa with SHAP explainability
-- **Risk Scoring Engine**: Weighted scoring with domain-specific factors
-- **Session Logging**: PostgreSQL via Supabase with Row-Level Security
-- **Multilingual Support**: GTE embeddings + multilingual prompts
-- **Workflow Automation**: n8n pipelines for ingestion, scoring, reporting
+The project is divided into two main components:
 
----
+- **`backend`:** A FastAPI application that handles the document processing, AI-powered risk analysis, and report generation.
+- **`frontend`:** A React application that provides the user interface for uploading documents and displaying the analysis results.
 
-## 🧩 Architecture Overview
+## Getting Started
 
-```bash
-advisor-agent/
-├── backend/
-│   ├── auth/                # Supabase JWT verification
-│   ├── routes/              # FastAPI endpoints (/ask, /risk-analysis)
-│   ├── db/                  # Supabase client for storage/logs
-│   ├── risk_engine/         # RAG agent + classifier + scoring
-│   └── main.py              # FastAPI app entrypoint
-├── frontend/
-│   └── src/                 # React + shadcn-ui chat interface
-├── supabase/
-│   └── schema.sql           # Tables + RLS policies
-├── infra/
-│   └── docker-compose.yaml  # Local dev setup
-```
+To run this project locally, you will need to have the following installed:
 
----
+- Python 3.8+
+- Node.js 14+
+- `pip` for Python package management
+- `npm` for Node.js package management
 
-## 🚀 Setup Instructions
+### Backend Setup
 
-### Option 1: **Lovable (No Setup Required)**
-- Open your [Lovable dashboard](https://lovable.dev)
-- Use natural language prompts to modify UI or logic
-- Changes auto-commit to GitHub
+1. Navigate to the `backend` directory.
+2. Install the required Python packages: `pip install -r requirements.txt`.
+3. Set your OpenAI API key as an environment variable: `export OPENAI_API_KEY='your-api-key'`.
+4. Run the FastAPI server: `uvicorn main:app --reload`.
 
-### Option 2: **Local Development**
-```bash
-git clone https://github.com/Saniya-Meghana/advisor-agent.git
-cd advisor-agent
-npm install
-npm run dev
-```
-> Requires Node.js + npm (recommended via `nvm`)
+### Frontend Setup
 
-### Option 3: **GitHub Codespaces**
-- Go to your GitHub repo
-- Click **Code → Codespaces → New Codespace**
-- Edit and commit directly in the cloud IDE
+1. Navigate to the `frontend` directory.
+2. Install the necessary Node.js packages: `npm install`.
+3. Start the React development server: `npm start`.
 
----
+Once both the backend and frontend servers are running, you can access the application at `http://localhost:3000`.
 
-## 🔐 Supabase Integration
+## AI Implementation Prompt
 
-- **Auth**: Email/password or OAuth via Supabase Auth
-- **Storage**: Uploads stored in `compliance-docs/` bucket
-- **Database**: PostgreSQL with RLS for user privacy
-- **Vector Search**: Optional pgvector extension for semantic queries
+> **Task:**
+> You are building a Risk & Compliance Advisor system. For **any uploaded compliance document**, perform the following steps automatically:
+> 
+> **1️⃣ Analyze Document Dynamically**
+> 
+> * Detect **all compliance risks** without hardcoding labels.
+> * For each risk, extract:
+> 
+>   * Risk Title
+>   * Severity (High / Medium / Low)
+>   * Issue Description
+>   * Suggested Solution (step-by-step actionable checklist)
+>   * Recommended Timeline (High=30 days, Medium=60 days, Low=90 days)
+> 
+> **2️⃣ Generate PDFs**
+> 
+> * **One PDF per detected risk**, including:
+> 
+>   * Risk Title
+>   * Severity (color-coded: Red=High, Yellow=Medium, Green=Low)
+>   * Issue Description
+>   * Suggested Solution checklist
+>   * Timeline
+> * **Summary PDF per document**, including:
+> 
+>   * Overall compliance score
+>   * List of all risks with severity
+>   * Next steps / action plan
+> 
+> **3️⃣ Handle Multiple Documents**
+> 
+> * Process **any number of uploaded PDFs** automatically.
+> * Generate risk PDFs and summary PDFs for **each document**.
+> * Dynamically name files:
+> 
+>   * `Risk_<RiskTitle>_<DocumentName>_<Date>.pdf`
+>   * `Compliance_Summary_<DocumentName>_<Date>.pdf`
+> 
+> **4️⃣ UI Integration**
+> 
+> * Provide generated PDF file paths or URLs for frontend download.
+> * Ensure instant availability for user download after processing.
+> 
+> **5️⃣ Automation & Formatting**
+> 
+> * Fully dynamic: no manual intervention for risk titles or document names.
+> * PDFs should be **professional, readable, and structured**.
+> * Optional enhancements: progress indicator, modals, secure storage, auto-cleanup.
 
-```sql
--- compliance_logs table
-create table compliance_logs (
-  id uuid primary key default uuid_generate_v4(),
-  user_id uuid references auth.users(id),
-  document_name text,
-  risk_score float,
-  created_at timestamptz default now()
-);
-```
+## License
 
----
-
-## 🧠 AI Agent Modules
-
-### RAG Agent
-```python
-from sentence_transformers import SentenceTransformer
-import faiss
-
-model = SentenceTransformer("all-MiniLM-L6-v2")
-index = faiss.IndexFlatL2(384)
-```
-
-### Red Flag Classifier
-```python
-from transformers import BertForSequenceClassification
-model = BertForSequenceClassification.from_pretrained("bert-base-uncased")
-```
-
-### Risk Scoring
-```python
-def compute_risk_score(detections):
-    score = sum(severity_weights[d["severity"]] * d["confidence"] for d in detections)
-    return min(100, score * domain_factor)
-```
-
----
-
-## 📈 Monitoring & Automation
-
-- **n8n**: Automates ingestion → embedding → scoring → reporting
-- **Prometheus + Grafana**: Metrics and dashboards
-- **Sentry**: Error tracking
-- **Slack Alerts**: Compliance violations and audit logs
-
----
-
-## 🌐 Deployment
-
-- **Frontend**: Vercel or Firebase Hosting
-- **Backend**: Render, Railway, or Cloud Run (Dockerized)
-- **Database**: Supabase (PostgreSQL + Storage + Auth)
-
----
-
-## 🧪 Evaluation Tools
-
-- **RAGAS**: Factuality and citation accuracy
-- **SHAP**: Explainability for classifier decisions
-- **LangChain (optional)**: Orchestration layer for multi-hop reasoning
-
----
-
-## 📜 License
-
-MIT — feel free to fork, remix, and build your own compliance agents.
-
----
+This project is licensed under the MIT License. See the `LICENSE` file for more details.

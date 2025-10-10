@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-pydantic
-python-dotenv
-supabase
-beautifulsoup4
+python-multipart
+openai
+reportlab
+pdfplumber

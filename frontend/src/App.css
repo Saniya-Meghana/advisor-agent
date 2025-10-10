@@ -1,0 +1,128 @@
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f4f7f9;
+  color: #333;
+  margin: 0;
+}
+
+.App {
+  text-align: center;
+  padding: 2rem;
+}
+
+.App-header {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: auto;
+}
+
+h1 {
+  color: #1a237e;
+  margin-bottom: 2rem;
+}
+
+.upload-section {
+  margin-bottom: 2rem;
+}
+
+.file-input {
+  border: 2px dashed #ccc;
+  padding: 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.file-input:hover {
+  border-color: #1a237e;
+}
+
+.file-input input[type="file"] {
+  display: none;
+}
+
+.file-list {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.analyze-button {
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 1rem;
+}
+
+.analyze-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.analyze-button:hover:not(:disabled) {
+  background-color: #1a237e;
+}
+
+.loading-indicator, .message {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #555;
+}
+
+.results-section {
+  margin-top: 2rem;
+  text-align: left;
+}
+
+.pdf-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.pdf-category {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.pdf-category h3 {
+  color: #3f51b5;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+.pdf-category ul {
+  list-style: none;
+  padding: 0;
+}
+
+.pdf-category li {
+  margin: 0.5rem 0;
+}
+
+.pdf-category a {
+  text-decoration: none;
+  color: #1a237e;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.pdf-category a:hover {
+  text-decoration: underline;
+  color: #3f51b5;
+}
