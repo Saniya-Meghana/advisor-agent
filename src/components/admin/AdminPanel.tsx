@@ -164,11 +164,11 @@ const AdminPanel = () => {
         setAuditLogs([]);
       }
 
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error fetching data:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to fetch admin data",
+        description: (error as Error).message || "Failed to fetch admin data",
         variant: "destructive",
       });
     } finally {
@@ -233,11 +233,11 @@ const AdminPanel = () => {
       setTemplateForm({ name: '', description: '', version: '1.0', template_data: '' });
       setSelectedTemplate(null);
       fetchData();
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error saving template:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to save template",
+        description: (error as Error).message || "Failed to save template",
         variant: "destructive",
       });
     }
@@ -271,11 +271,11 @@ const AdminPanel = () => {
       });
 
       fetchData();
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error updating user role:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update user role",
+        description: (error as Error).message || "Failed to update user role",
         variant: "destructive",
       });
     }
@@ -298,11 +298,11 @@ const AdminPanel = () => {
       });
 
       fetchData();
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error updating template status:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update template status",
+        description: (error as Error).message || "Failed to update template status",
         variant: "destructive",
       });
     }

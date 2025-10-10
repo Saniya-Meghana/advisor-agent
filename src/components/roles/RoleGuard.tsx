@@ -42,9 +42,9 @@ const RoleGuard = ({ children, allowedRoles, fallback }: RoleGuardProps) => {
       if (roles.length === 0) {
         await assignDefaultRole();
       }
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error fetching user roles:', error);
-      setError(error.message);
+      setError((error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ const RoleGuard = ({ children, allowedRoles, fallback }: RoleGuardProps) => {
 
       if (error) throw error;
       setUserRoles(['viewer']);
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error assigning default role:', error);
       setError('Failed to assign default role');
     }
@@ -89,7 +89,7 @@ const RoleGuard = ({ children, allowedRoles, fallback }: RoleGuardProps) => {
     );
   }
 
-  const hasPermission = userRoles.some(role => allowedRoles.includes(role as unknown));
+  const hasPermission = userRoles.some(role => allowedRoles.includes(role as 'admin' | 'analyst' | 'auditor' | 'viewer'));
 
   if (!hasPermission) {
     if (fallback) {

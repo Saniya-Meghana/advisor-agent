@@ -1,17 +1,15 @@
 import os
 import datetime
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from reportlab.lib.colors import red, yellow, green, black
 import pdfplumber
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from typing import List
 import shutil
-import openai  # Or your AI integration
+import openai
 from fastapi.middleware.cors import CORSMiddleware
 import json
+from pdf_generator import generate_risk_pdf, generate_summary_pdf
 
 # --- Configuration ---
 # REMEMBER to set your OpenAI API key as an environment variable
@@ -23,7 +21,8 @@ PDF_DIR = "generated_pdfs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(PDF_DIR, exist_ok=True)
 
-SEVERITY_COLOR = {"High": red, "Medium": yellow, "Low": green}
+# PDF directory configuration
+PDF_DIR = "generated_pdfs"
 
 app = FastAPI()
 
@@ -39,88 +38,7 @@ app.add_middleware(
 # Mount the directory to serve generated PDFs
 app.mount("/generated_pdfs", StaticFiles(directory=PDF_DIR), name="generated_pdfs")
 
-# --- PDF Functions ---
-def generate_risk_pdf(risk, document_name):
-    date_str = datetime.datetime.now().strftime("%Y%m%d")
-    filename = os.path.join(PDF_DIR, f"Risk_{risk['Risk Title'].replace(' ','_')}_{document_name}_{date_str}.pdf")
-    
-    c = canvas.Canvas(filename, pagesize=A4)
-    width, height = A4
-    
-    # Title
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(50, height - 50, f"Risk Report: {risk['Risk Title']}")
-    
-    # Severity
-    c.setFont("Helvetica-Bold", 12)
-    c.setFillColor(SEVERITY_COLOR.get(risk['Severity'], black))
-    c.drawString(50, height - 80, f"Severity: {risk['Severity']}")
-    c.setFillColor(black) # Reset color
-    
-    # Description
-    c.setFont("Helvetica", 12)
-    text_object = c.beginText(50, height - 110)
-    text_object.setFont("Helvetica-Bold", 12)
-    text_object.textLine("Issue Description:")
-    text_object.setFont("Helvetica", 12)
-    lines = risk['Description'].split('\n')
-    for line in lines:
-        text_object.textLine(line)
-    c.drawText(text_object)
-    
-    # Solution
-    solution_y = text_object.getY() - 20
-    text_object = c.beginText(50, solution_y)
-    text_object.setFont("Helvetica-Bold", 12)
-    text_object.textLine("Suggested Solution (Checklist):")
-    text_object.setFont("Helvetica", 12)
-    solution_items = risk['Suggested Solution'].split('\n')
-    for item in solution_items:
-        text_object.textLine(f"☐ {item}")
-    c.drawText(text_object)
-
-    # Timeline
-    timeline_y = text_object.getY() - 30
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, timeline_y, f"Recommended Timeline: {risk['Recommended Timeline']}")
-    
-    c.save()
-    return filename
-
-def generate_summary_pdf(risks, document_name, compliance_score):
-    date_str = datetime.datetime.now().strftime("%Y%m%d")
-    filename = os.path.join(PDF_DIR, f"Compliance_Summary_{document_name}_{date_str}.pdf")
-    
-    c = canvas.Canvas(filename, pagesize=A4)
-    width, height = A4
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(50, height - 50, f"Compliance Summary: {document_name}")
-    
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, height - 90, f"Overall Compliance Score: {compliance_score}%")
-    
-    y = height - 130
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, y, "Detected Risks:")
-    y -= 20
-
-    c.setFont("Helvetica", 12)
-    for risk in risks:
-        c.setFillColor(SEVERITY_COLOR.get(risk['Severity'], black))
-        c.drawString(70, y, f"• {risk['Risk Title']} (Severity: {risk['Severity']})")
-        y -= 20
-        if y < 100: # Add new page if content overflows
-            c.showPage()
-            y = height - 50
-
-    c.setFillColor(black)
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, y - 30, "Next Steps:")
-    c.setFont("Helvetica", 12)
-    c.drawString(70, y - 50, "Implement suggested solutions for all identified risks.")
-    
-    c.save()
-    return filename
+# PDF generation is now handled by pdf_generator.py module
 
 # --- Text extraction ---
 def extract_text(pdf_path):
@@ -137,19 +55,20 @@ def extract_text(pdf_path):
 
 # --- AI Risk Analysis ---
 def analyze_document_text(text):
+    """Analyze document text and extract compliance risks dynamically"""
     if not openai.api_key:
-        raise HTTPException(status_code=500, detail="OpenAI API key not configured. Please set the OPENAI_API_KEY environment variable.")
+        raise HTTPException(status_code=500, detail="OpenAI API key not configured.")
 
     prompt = f'''
     Analyze the following compliance document. Detect all risks dynamically.
     For each risk, return:
-    - "Risk Title": A short, descriptive title for the risk.
-    - "Severity": "High", "Medium", or "Low".
-    - "Description": A detailed explanation of the issue.
-    - "Suggested Solution": An actionable, step-by-step checklist formatted as a single string with newline characters (\n) separating steps.
-    - "Recommended Timeline": "30 days" for High, "60 days" for Medium, "90 days" for Low.
+    - "category": Risk category/title
+    - "severity": "CRITICAL", "HIGH", "MEDIUM", or "LOW"
+    - "description": Detailed explanation of the issue
+    - "recommendation": Actionable steps as a checklist (use \\n for separating steps)
+    - "regulation": Relevant regulation (GDPR, CCPA, HIPAA, SOX, etc.)
     
-    Return your response as a valid JSON array of objects.
+    Return response as: {{"risks": [...]}}
     
     Document content:
     """
@@ -165,16 +84,24 @@ def analyze_document_text(text):
             response_format={"type": "json_object"}
         )
         content = response.choices[0].message['content']
-        # The model might return a JSON object with a key like "risks"
-        risks = json.loads(content)
-        return risks.get('risks', []) if isinstance(risks, dict) else risks
+        risks_data = json.loads(content)
+        risks = risks_data.get('risks', []) if isinstance(risks_data, dict) else []
+        
+        # Calculate compliance score based on severity
+        if risks:
+            severity_scores = {"CRITICAL": 0, "HIGH": 25, "MEDIUM": 50, "LOW": 75}
+            total_score = sum(severity_scores.get(r.get('severity', 'MEDIUM').upper(), 50) for r in risks)
+            compliance_score = max(0, 100 - (total_score / len(risks)))
+        else:
+            compliance_score = 95  # No risks found
+        
+        return risks, int(compliance_score)
 
     except json.JSONDecodeError as e:
         print(f"JSON Decode Error: {e}")
-        print(f"Received content: {content}")
-        raise HTTPException(status_code=500, detail="Failed to parse AI response as JSON.")
+        raise HTTPException(status_code=500, detail="Failed to parse AI response.")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"AI Analysis Error: {e}")
         raise HTTPException(status_code=500, detail=f"Error during AI analysis: {e}")
 
 
@@ -196,28 +123,42 @@ async def upload_documents(files: List[UploadFile] = File(...)):
 
     all_risk_files = []
     all_summary_files = []
+    all_results = []
     
     for file_path in saved_paths:
         document_name = os.path.splitext(os.path.basename(file_path))[0]
         text = extract_text(file_path)
         
         if not text.strip():
-            # If text is empty, you might want to skip or handle it
             continue 
 
-        risks = analyze_document_text(text)
+        risks, compliance_score = analyze_document_text(text)
         
+        risk_files = []
         if risks:
-            risk_files = [generate_risk_pdf(risk, document_name) for risk in risks]
-            summary_file = generate_summary_pdf(risks, document_name, compliance_score=45) # Placeholder score
-            
+            # Generate individual risk PDFs
+            risk_files = [generate_risk_pdf(risk, document_name, PDF_DIR) for risk in risks]
             all_risk_files.extend(risk_files)
-            all_summary_files.append(summary_file)
+        
+        # Generate summary PDF
+        summary_file = generate_summary_pdf(risks, document_name, compliance_score, PDF_DIR)
+        all_summary_files.append(summary_file)
+        
+        all_results.append({
+            "document": document_name,
+            "compliance_score": compliance_score,
+            "risk_count": len(risks),
+            "risk_pdfs": risk_files,
+            "summary_pdf": summary_file
+        })
     
     return JSONResponse(content={
-        "risk_pdfs": all_risk_files,
-        "summary_pdfs": all_summary_files,
-        "message": f"{len(files)} documents processed successfully."
+        "success": True,
+        "documents_processed": len(files),
+        "results": all_results,
+        "all_risk_pdfs": all_risk_files,
+        "all_summary_pdfs": all_summary_files,
+        "message": f"{len(files)} documents analyzed successfully. Generated {len(all_risk_files)} risk reports and {len(all_summary_files)} summary reports."
     })
 
 # Health check endpoint

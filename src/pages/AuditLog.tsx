@@ -46,13 +46,13 @@ const AuditLog = () => {
           console.log("Realtime event:", payload);
 
           if (payload.eventType === "INSERT") {
-            setLogs((prev) => [payload.new, ...prev]);
+            setLogs((prev) => [payload.new as any, ...prev]);
           } else if (payload.eventType === "UPDATE") {
             setLogs((prev) =>
-              prev.map((log) => (log.id === payload.new.id ? payload.new : log))
+              prev.map((log: any) => (log.id === (payload.new as any).id ? payload.new as any : log))
             );
           } else if (payload.eventType === "DELETE") {
-            setLogs((prev) => prev.filter((log) => log.id !== payload.old.id));
+            setLogs((prev) => prev.filter((log: any) => log.id !== (payload.old as any).id));
           }
         }
       )
@@ -103,7 +103,7 @@ const AuditLog = () => {
     // later implement CSV export
   };
 
-  const filteredLogs = logs.filter((log) => {
+  const filteredLogs = logs.filter((log: any) => {
     const description = log.details?.description || "";
     const riskLevel = log.details?.risk_level || "";
 
@@ -202,7 +202,7 @@ const AuditLog = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredLogs.map((log) => (
+                filteredLogs.map((log: any) => (
                   <TableRow key={log.id}>
                     <TableCell className="font-mono text-sm">
                       {log.timestamp ? new Date(log.timestamp).toLocaleString() : "N/A"}

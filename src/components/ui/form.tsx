@@ -23,7 +23,7 @@ type FormFieldContextValue<
 }
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
-  Record<string, unknown> as FormFieldContextValue
+  {} as FormFieldContextValue
 )
 
 const FormField = <
@@ -67,7 +67,7 @@ type FormItemContextValue = {
 }
 
 const FormItemContext = React.createContext<FormItemContextValue>(
-  Record<string, unknown> as FormItemContextValue
+  {} as FormItemContextValue
 )
 
 const FormItem = React.forwardRef<

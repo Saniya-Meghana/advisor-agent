@@ -57,11 +57,11 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportIds, onExportComplete
 
       onExportComplete?.();
 
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Export error:', error);
       toast({
         title: "Export failed",
-        description: error.message || 'Failed to export reports',
+        description: (error as Error).message || 'Failed to export reports',
         variant: "destructive",
       });
     } finally {
@@ -86,7 +86,7 @@ const ReportExport: React.FC<ReportExportProps> = ({ reportIds, onExportComplete
 
         <div>
           <label className="text-sm font-medium mb-2 block">Export Format</label>
-          <Select value={selectedFormat} onValueChange={(params: unknown) => setSelectedFormat(value)}>
+          <Select value={selectedFormat} onValueChange={(value) => setSelectedFormat(value as 'pdf' | 'csv' | 'json' | 'xlsx')}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

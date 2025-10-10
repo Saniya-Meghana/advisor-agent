@@ -65,7 +65,7 @@ const Settings = () => {
           role: data.role || '',
         });
       }
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error fetching profile:', error);
       toast({
         title: "Error",
@@ -114,11 +114,11 @@ const Settings = () => {
         title: "Profile updated",
         description: "Your profile information has been saved",
       });
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error saving profile:', error);
       toast({
         title: "Save failed",
-        description: error.message || "Failed to save profile information",
+        description: (error as Error).message || "Failed to save profile information",
         variant: "destructive",
       });
     } finally {
@@ -162,7 +162,7 @@ const Settings = () => {
         title: "Account deletion requested",
         description: "Please contact support to complete account deletion",
       });
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error deleting account:', error);
       toast({
         title: "Delete failed",

@@ -129,18 +129,18 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
       });
 
       onUploadComplete?.();
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
       setUploadFiles(prev => prev.map(f =>
         f.id === uploadFile.id ? {
           ...f,
           status: 'error',
-          error: error.message || 'Upload failed'
+          error: (error as Error).message || 'Upload failed'
         } : f
       ));
       toast({
         title: "Upload failed",
-        description: error.message || 'Failed to upload file',
+        description: (error as Error).message || 'Failed to upload file',
         variant: "destructive",
       });
     }

@@ -208,10 +208,7 @@ const Assistant = () => {
               </CardContent>
             </Card>
           ) : (
-            <EnhancedComplianceChat
-              session={activeSession}
-              onSendMessage={handleSendMessage}
-            />
+            <EnhancedComplianceChat />
           )}
         </div>
       </main>

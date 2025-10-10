@@ -46,7 +46,7 @@ const ComplianceReports = () => {
       if (error) throw error;
 
       setReports(data || []);
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error fetching compliance reports:', error);
       toast({
         title: "Error",
@@ -129,11 +129,11 @@ const ComplianceReports = () => {
         title: "Report exported",
         description: "Professional compliance report has been generated and downloaded",
       });
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Export error:', error);
       toast({
         title: "Export failed",
-        description: error.message || "Failed to export compliance report",
+        description: (error as Error).message || "Failed to export compliance report",
         variant: "destructive",
       });
     }
@@ -213,7 +213,7 @@ const ComplianceReports = () => {
             {/* Detailed Analysis */}
             <Accordion type="multiple" className="w-full">
               {/* Issues Detected */}
-              {report.issues_detected && report.issues_detected.length > 0 && (
+              {report.issues_detected && Array.isArray(report.issues_detected) && report.issues_detected.length > 0 && (
                 <AccordionItem value="issues">
                   <AccordionTrigger>
                     <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ const ComplianceReports = () => {
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-4">
-                      {report.issues_detected.map((issue, index) => (
+                      {report.issues_detected.map((issue: any, index) => (
                         <Card key={index} className="p-4">
                           <div className="flex items-start justify-between mb-2">
                             <h5 className="font-medium">{issue.category}</h5>
@@ -244,7 +244,7 @@ const ComplianceReports = () => {
               )}
 
               {/* Recommendations */}
-              {report.recommendations && report.recommendations.length > 0 && (
+              {report.recommendations && Array.isArray(report.recommendations) && report.recommendations.length > 0 && (
                 <AccordionItem value="recommendations">
                   <AccordionTrigger>
                     <div className="flex items-center gap-2">
@@ -254,7 +254,7 @@ const ComplianceReports = () => {
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-4">
-                      {report.recommendations.map((rec, index) => (
+                      {report.recommendations.map((rec: any, index) => (
                         <Card key={index} className="p-4">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">

@@ -62,11 +62,11 @@ const NotificationCenter = () => {
 
       if (error) throw error;
       setNotifications((data || []) as Notification[]);
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error fetching notifications:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to fetch notifications",
+        description: (error as Error).message || "Failed to fetch notifications",
         variant: "destructive",
       });
     } finally {
@@ -93,11 +93,11 @@ const NotificationCenter = () => {
             : notif
         )
       );
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error marking notification as read:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to mark notification as read",
+        description: (error as Error).message || "Failed to mark notification as read",
         variant: "destructive",
       });
     }
@@ -123,11 +123,11 @@ const NotificationCenter = () => {
         title: "Success",
         description: "All notifications marked as read",
       });
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error marking all notifications as read:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to mark all notifications as read",
+        description: (error as Error).message || "Failed to mark all notifications as read",
         variant: "destructive",
       });
     }
@@ -153,11 +153,11 @@ const NotificationCenter = () => {
         title: "Success",
         description: "Notification deleted",
       });
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error deleting notification:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete notification",
+        description: (error as Error).message || "Failed to delete notification",
         variant: "destructive",
       });
     }
@@ -232,7 +232,7 @@ const NotificationCenter = () => {
         </div>
       </div>
 
-      <Tabs value={filter} onValueChange={(value) => setFilter(value as unknown)} className="space-y-6">
+      <Tabs value={filter} onValueChange={(value) => setFilter(value as 'all' | 'read' | 'unread')} className="space-y-6">
         <TabsList>
           <TabsTrigger value="all">All ({notifications.length})</TabsTrigger>
           <TabsTrigger value="unread">Unread ({unreadCount})</TabsTrigger>
@@ -280,7 +280,7 @@ const NotificationCenter = () => {
                                   New
                                 </Badge>
                               )}
-                              <Badge variant={getNotificationVariant(notification.type) as unknown} className="text-xs">
+                              <Badge variant={getNotificationVariant(notification.type)} className="text-xs">
                                 {notification.type}
                               </Badge>
                             </div>

@@ -33,7 +33,8 @@ const Auth = () => {
       const { error } = await signIn(signInEmail, signInPassword);
       
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
+        const errorMessage = (error as { message?: string }).message || 'An error occurred';
+        if (errorMessage.includes('Invalid login credentials')) {
           toast({
             title: "Invalid credentials",
             description: "Please check your email and password and try again.",
@@ -42,7 +43,7 @@ const Auth = () => {
         } else {
           toast({
             title: "Sign in error",
-            description: error.message,
+            description: errorMessage,
             variant: "destructive"
           });
         }
@@ -71,13 +72,14 @@ const Auth = () => {
       const { error } = await signUp(signUpEmail, signUpPassword, signUpFullName);
       
       if (error) {
-        if (error.message.includes('User already registered')) {
+        const errorMessage = (error as { message?: string }).message || 'An error occurred';
+        if (errorMessage.includes('User already registered')) {
           toast({
             title: "Account exists",
             description: "An account with this email already exists. Please sign in instead.",
             variant: "destructive"
           });
-        } else if (error.message.includes('Password should be at least')) {
+        } else if (errorMessage.includes('Password should be at least')) {
           toast({
             title: "Weak password",
             description: "Password should be at least 6 characters long.",
@@ -86,7 +88,7 @@ const Auth = () => {
         } else {
           toast({
             title: "Sign up error",
-            description: error.message,
+            description: errorMessage,
             variant: "destructive"
           });
         }

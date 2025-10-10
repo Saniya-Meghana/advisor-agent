@@ -294,7 +294,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
       // Validate and set defaults
       return {
         compliance_score: Math.max(0, Math.min(100, analysisResult.compliance_score || 0)),
-        risk_.level: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(analysisResult.risk_level) 
+        risk_level: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(analysisResult.risk_level) 
           ? analysisResult.risk_level 
           : 'MEDIUM',
         issues_detected: Array.isArray(analysisResult.issues_detected) 

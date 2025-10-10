@@ -123,8 +123,8 @@ const RiskDashboard = () => {
         : 0;
 
       // Prepare compliance by regulation data
-      const regulationCounts: Record<string, number> = Record<string, unknown>;
-      const regulationScores: Record<string, number[]> = Record<string, unknown>;
+      const regulationCounts: Record<string, number> = {};
+      const regulationScores: Record<string, number[]> = {};
       
       completedAnalyses.forEach(doc => {
         const latestReport = doc.compliance_reports[doc.compliance_reports.length - 1];
@@ -145,7 +145,7 @@ const RiskDashboard = () => {
       }));
 
       // Extract top red flags
-      const allRedFlags: Record<string, number> = Record<string, unknown>;
+      const allRedFlags: Record<string, number> = {};
       completedAnalyses.forEach(doc => {
         const latestReport = doc.compliance_reports[doc.compliance_reports.length - 1];
         if (latestReport?.issues_detected) {
@@ -181,11 +181,11 @@ const RiskDashboard = () => {
         unreadNotifications: notifications?.length || 0
       });
 
-    } catch (params: unknown) {
+    } catch (error: unknown) {
       console.error('Error fetching dashboard data:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to fetch dashboard data",
+        description: (error as Error).message || "Failed to fetch dashboard data",
         variant: "destructive",
       });
     } finally {
@@ -343,7 +343,7 @@ const RiskDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {dashboardData.topRedFlags.map((item, index) => (
+                  {dashboardData.topRedFlags.map((item: any, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-red-500" />
@@ -396,7 +396,7 @@ const RiskDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {dashboardData.complianceByRegulation.map((item, index) => (
+                {dashboardData.complianceByRegulation.map((item: any, index) => (
                   <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <h3 className="font-medium">{item.regulation}</h3>
@@ -429,7 +429,7 @@ const RiskDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {dashboardData.recentAnalyses.map((analysis) => (
+                {dashboardData.recentAnalyses.map((analysis: any) => (
                   <div key={analysis.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-4">
                       <FileText className="h-5 w-5 text-muted-foreground" />
