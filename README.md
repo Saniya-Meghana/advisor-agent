@@ -1,73 +1,89 @@
-# Welcome to your Lovable project
+Welcome to Your Lovable Project
+Project Overview
+Project Name: Risk & Compliance Advisor Agent Live URL: lovable.dev/projects/ef01753e-54ad-45f2-ba74-c0eca1042939 Tech Stack: Vite · TypeScript · React · Tailwind CSS ·art shadcn-ui · FastAPI · Supabase · n8n · Docker · FAISS · OpenAI
 
-## Project info
+A modular AI-powered assistant designed to automate legal Q&A, risk detection, and compliance reporting. Built with microservices and RAG architecture, it supports multilingual advice, red flag classification, and traceable citations.
 
-**URL**: https://lovable.dev/projects/ef01753e-54ad-45f2-ba74-c0eca1042939
+🔧 How to Edit This Code
+Option 1: Use Lovable (No Setup Required)
+Visit your Lovable dashboard
 
-## How can I edit this code?
+Use natural language prompts to modify UI, logic, or styling
 
-There are several ways of editing your application.
+Changes are auto-committed to your GitHub repo
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/ef01753e-54ad-45f2-ba74-c0eca1042939) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+Option 2: Local Development via IDE
+sh
+# Clone the repo
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to the project
+cd advisor-agent
 
-# Step 3: Install the necessary dependencies.
+# Install dependencies
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the dev server
 npm run dev
-```
+Requires Node.js & npm. Install via nvm
 
-**Edit a file directly in GitHub**
+Option 3: GitHub Codespaces
+Go to your repo’s main page
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Click “Code” → “Codespaces” → “New Codespace”
 
-**Use GitHub Codespaces**
+Edit and commit directly in the cloud IDE
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+🧠 AI Agent Architecture
+Based on your SRS and Detailed Project Plan, the agent includes:
 
-## What technologies are used for this project?
+Document Ingestion: PDF/DOCX/CSV parsing, OCR via Textract/Tesseract
 
-This project is built with:
+Embedding & Retrieval: SentenceTransformers + FAISS
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Prompt Engineering: Context-aware templates for legal Q&A, risk scoring
 
-## How can I deploy this project?
+LLM Integration: OpenAI, Claude, or Hugging Face via FastAPI
 
-Simply open [Lovable](https://lovable.dev/projects/ef01753e-54ad-45f2-ba74-c0eca1042939) and click on Share -> Publish.
+Red Flag Classifier: LegalBERT/RoBERTa with SHAP explainability
 
-## Can I connect a custom domain to my Lovable project?
+Risk Analysis Engine: Normalized scoring with domain weights
 
-Yes, you can!
+Session Logging: PostgreSQL + Supabase
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Monitoring: Prometheus, Grafana, ELK, Sentry
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+⚙️ Workflow Automation with n8n
+Use the self-building agent template to automate:
+
+File upload → ingestion → embedding → vector search
+
+Chat query → context injection → LLM response
+
+Risk detection → scoring → PDF report generation
+
+Session logging → audit trail → Slack alerts
+
+Supports modular sub-workflows for ingestion, Q&A, and reporting6.
+
+🚀 Deployment Instructions
+Firebase Studio
+Backend services and session tracking are integrated via Firebase Studio
+
+FastAPI Microservices
+Endpoints: /upload, /ask, /risk-analysis, /report, /history
+
+Auth: JWT + OAuth2
+
+Containerized via Docker, orchestrated with Kubernetes
+
+Lovable Deployment
+Open your Lovable dashboard
+
+Click Share → Publish to go live
+
+🌐 Custom Domain Setup
+Go to Project → Settings → Domains
+
+Click Connect Domain
+

@@ -22,17 +22,13 @@ pop3_port = 54326
 
 [storage]
 enabled = true
-port = 54327
 file_size_limit = "50MiB"
 
 [auth]
 enabled = true
-port = 54328
 site_url = "http://localhost:3000"
 additional_redirect_urls = ["https://lovable.app"]
 jwt_expiry = 3600
-refresh_token_rotation_enabled = true
-security_update_password_require_reauthentication = true
 
 [functions.crawl-website]
 verify_jwt = false

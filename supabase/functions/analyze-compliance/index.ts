@@ -117,8 +117,8 @@ serve(async (req) => {
         analysis_summary: analysisResult.analysis_summary,
         clause_scores: analysisResult.clause_scores,
         evidence_chunks: analysisResult.evidence_chunks,
-        model_name: 'gpt-4o-mini',
-        model_version: '2.0'
+        model_name: 'gemini-pro',
+        model_version: '1.0'
       })
       .select()
       .single();
@@ -200,10 +200,10 @@ async function analyzeDocumentWithAI(
   filename: string, 
   templates: RegulationTemplate[]
 ): Promise<ComplianceAnalysisResult> {
-  const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+  const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
   
-  if (!openaiApiKey) {
-    throw new Error('OpenAI API key not configured');
+  if (!googleApiKey) {
+    throw new Error('Google API key not configured');
   }
 
   const regulationContext = templates.map(t => `
@@ -268,36 +268,25 @@ Provide actionable recommendations and specific risk mitigation strategies.
 `;
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${googleApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert compliance analyst with deep knowledge of regulatory frameworks, risk assessment, and document analysis. Always respond with valid JSON.'
-          },
-          {
-            role: 'user', 
-            content: prompt
-          }
-        ],
-        max_tokens: 4000,
-        temperature: 0.1,
-        response_format: { type: "json_object" }
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          response_mime_type: "application/json",
+        }
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      throw new Error(`Google AI API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content;
+    const content = data.candidates[0].content.parts[0].text;
     
     try {
       const analysisResult = JSON.parse(content);
@@ -305,7 +294,7 @@ Provide actionable recommendations and specific risk mitigation strategies.
       // Validate and set defaults
       return {
         compliance_score: Math.max(0, Math.min(100, analysisResult.compliance_score || 0)),
-        risk_level: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(analysisResult.risk_level) 
+        risk_.level: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(analysisResult.risk_level) 
           ? analysisResult.risk_level 
           : 'MEDIUM',
         issues_detected: Array.isArray(analysisResult.issues_detected) 

@@ -78,7 +78,7 @@ const EnhancedComplianceChat = () => {
         await createNewSession();
       }
     } catch (params: unknown) {
-      console.error('Error fetching sessions:', error);
+      console.error('Error fetching sessions:', params);
       toast({
         title: "Error",
         description: "Failed to load chat sessions",
@@ -101,7 +101,7 @@ const EnhancedComplianceChat = () => {
 
       setMessages(data || []);
     } catch (params: unknown) {
-      console.error('Error fetching messages:', error);
+      console.error('Error fetching messages:', params);
       toast({
         title: "Error",
         description: "Failed to load chat messages",
@@ -132,7 +132,7 @@ const EnhancedComplianceChat = () => {
       // Add welcome message
       await addWelcomeMessage(data.id);
     } catch (params: unknown) {
-      console.error('Error creating session:', error);
+      console.error('Error creating session:', params);
       toast({
         title: "Error",
         description: "Failed to create new chat session",
@@ -188,7 +188,7 @@ How can I assist you today?`,
           user_id: user.id,
           message_type: 'user',
           content: userMessage,
-          metadata: Record<string, unknown>
+          metadata: {}
         })
         .select()
         .single();
@@ -217,7 +217,7 @@ How can I assist you today?`,
           user_id: user.id,
           message_type: 'assistant',
           content: aiResponse.response,
-          metadata: aiResponse.metadata || Record<string, unknown>
+          metadata: aiResponse.metadata || {}
         })
         .select()
         .single();
@@ -240,7 +240,7 @@ How can I assist you today?`,
       }
 
     } catch (params: unknown) {
-      console.error('Error sending message:', error);
+      console.error('Error sending message:', params);
       toast({
         title: "Error",
         description: "Failed to send message",

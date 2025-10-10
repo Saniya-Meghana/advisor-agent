@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
+tqdm
+transformers>=4.35
+sentence-transformers
+datasets
+faiss-cpu
+smolagents
+huggingface-hub
+pdfminer.six
+python-docx
+langchain
+numpy
+scikit-learn
+torch

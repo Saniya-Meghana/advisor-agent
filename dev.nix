@@ -1,8 +1,9 @@
-{ pkgs ? import <nixpkgs> {} }:
-
-pkgs.mkShell {
-  buildInputs = [
+{ pkgs, ... }: {
+  packages = [
     pkgs.terraform
-    # add other packages here if needed
+    pkgs.python3
+    pkgs.python3Packages.pip
   ];
+
+  services.docker.enable = true;
 }
