@@ -1,4 +1,4 @@
-import { parseJsonSafely, assertIsRecord } from "../_shared/types";
+import { parseJsonSafely, assertIsRecord } from "../_shared/types.ts";
 
 export default async function handler(req: Request): Promise<Response> {
   try {
