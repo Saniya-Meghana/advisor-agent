@@ -148,9 +148,32 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
 
   const triggerComplianceAnalysis = async (documentId: string) => {
     try {
-      const { error } = await supabase.functions.invoke('analyze-compliance', {
-        body: { document_id: documentId }
+      // Read file content for analysis
+      const { data: docData } = await supabase
+        .from('documents')
+        .select('storage_path, filename, original_name')
+        .eq('id', documentId)
+        .single();
+
+      if (!docData) throw new Error('Document not found');
+
+      // Download file content
+      const { data: fileData } = await supabase.storage
+        .from('documents')
+        .download(docData.storage_path);
+
+      if (!fileData) throw new Error('Failed to download file');
+
+      const fileText = await fileData.text();
+
+      const { error } = await supabase.functions.invoke('analyze-document', {
+        body: {
+          document_id: documentId,
+          document_text: fileText,
+          filename: docData.original_name
+        }
       });
+      
       if (error) throw error;
     } catch (error) {
       console.error('Failed to trigger compliance analysis:', error);

@@ -58,6 +58,39 @@ const ComplianceReports = () => {
     }
   };
 
+  const handleExport = async (reportId: string, format: 'json' | 'csv') => {
+    try {
+      const { data, error } = await supabase.functions.invoke('export-compliance-report', {
+        body: { report_id: reportId, format }
+      });
+
+      if (error) throw error;
+
+      // Create download link
+      const blob = new Blob([format === 'json' ? JSON.stringify(data, null, 2) : data], {
+        type: format === 'json' ? 'application/json' : 'text/csv'
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `compliance-report-${reportId}.${format}`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: 'Export successful',
+        description: `Report exported as ${format.toUpperCase()}`,
+      });
+    } catch (error: unknown) {
+      console.error('Export error:', error);
+      toast({
+        title: 'Export failed',
+        description: (error as Error).message || 'Failed to export report',
+        variant: 'destructive',
+      });
+    }
+  };
+
   useEffect(() => {
     fetchReports();
   }, [user]);
@@ -105,29 +138,32 @@ const ComplianceReports = () => {
     }
   };
 
-  const exportReport = async (report: ComplianceReport) => {
+  const exportReport = async (report: ComplianceReport, format: 'json' | 'csv' = 'json') => {
     try {
-      const { data, error } = await supabase.functions.invoke('export-report', {
+      const { data, error } = await supabase.functions.invoke('export-compliance-report', {
         body: {
-          report_ids: [report.id],
-          format: 'pdf',
-          include_charts: true
+          report_id: report.id,
+          format
         }
       });
 
       if (error) throw error;
 
       // Create download link
-      const link = document.createElement('a');
-      link.href = data.download_url;
-      link.download = data.filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const content = format === 'json' ? JSON.stringify(data, null, 2) : data;
+      const blob = new Blob([content], {
+        type: format === 'json' ? 'application/json' : 'text/csv'
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `compliance-report-${report.id}.${format}`;
+      a.click();
+      window.URL.revokeObjectURL(url);
 
       toast({
         title: "Report exported",
-        description: "Professional compliance report has been generated and downloaded",
+        description: `Compliance report exported as ${format.toUpperCase()}`,
       });
     } catch (error: unknown) {
       console.error('Export error:', error);
@@ -177,14 +213,24 @@ const ComplianceReports = () => {
                   Generated on {format(new Date(report.generated_at), 'MMM dd, yyyy at h:mm a')}
                 </CardDescription>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => exportReport(report)}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => exportReport(report, 'json')}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  JSON
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => exportReport(report, 'csv')}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  CSV
+                </Button>
+              </div>
             </div>
           </CardHeader>
           

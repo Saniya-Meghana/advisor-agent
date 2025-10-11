@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DocumentUpload from "@/components/documents/DocumentUpload";
 import DocumentList from "@/components/documents/DocumentList";
+import ComplianceReports from "@/components/compliance/ComplianceReports";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const Documents = () => {
@@ -25,9 +26,10 @@ const Documents = () => {
           </header>
 
           <Tabs defaultValue="upload" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="upload">Upload Documents</TabsTrigger>
               <TabsTrigger value="documents">My Documents</TabsTrigger>
+              <TabsTrigger value="reports">Compliance Reports</TabsTrigger>
             </TabsList>
 
             <TabsContent value="upload" className="space-y-6">
@@ -61,6 +63,10 @@ const Documents = () => {
                   />
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="reports" className="space-y-6">
+              <ComplianceReports key={refreshTrigger} />
             </TabsContent>
           </Tabs>
         </div>
