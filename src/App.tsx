@@ -21,6 +21,7 @@ const Documents = lazy(() => import("@/pages/Documents"));
 const AuditLog = lazy(() => import("@/pages/AuditLog"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
+const Admin = lazy(() => import("@/pages/Admin"));
 const AdminPanel = lazy(() => import("@/components/admin/AdminPanel"));
 const NotificationCenter = lazy(() => import("@/components/notifications/NotificationCenter"));
 const Assistant = lazy(() => import("@/pages/Assistant"));
@@ -104,7 +105,7 @@ const routes: AppRoute[] = [
   { path: "/settings", element: <Settings />, protected: true },
   { path: "/assistant", element: <Assistant />, protected: true },
   { path: "/onboarding", element: <Onboarding />, protected: true },
-  { path: "/admin", element: <AdminPanel />, protected: true },
+  { path: "/admin", element: <Admin />, protected: true },
   { path: "/notifications", element: <NotificationCenter />, protected: true },
   { path: "/auth", element: <Auth />, protected: false },
   { path: "*", element: <NotFound />, protected: false },

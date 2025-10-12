@@ -36,6 +36,15 @@ verify_jwt = true
 [functions.export-compliance-report]
 verify_jwt = true
 
+[functions.generate-pdf-report]
+verify_jwt = true
+
+[functions.batch-analyze-documents]
+verify_jwt = true
+
+[functions.scheduled-reanalysis]
+verify_jwt = false
+
 [functions.crawl-website]
 verify_jwt = false
 
