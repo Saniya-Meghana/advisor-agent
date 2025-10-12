@@ -1,0 +1,147 @@
+.compliance-dashboard {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.compliance-dashboard h1 {
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.card h2 {
+  color: #555;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filters select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+}
+
+.document-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.document-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  background-color: #fdfdfd;
+  transition: all 0.2s ease-in-out;
+}
+
+.document-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.document-item h3 {
+  margin-top: 0;
+  color: #007bff;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.document-item p {
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #666;
+}
+
+.document-item strong {
+  color: #333;
+}
+
+.document-item a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.document-item a:hover {
+  text-decoration: underline;
+}
+
+.risk-tag,
+.severity-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  margin-left: 5px;
+}
+
+/* Risk Type Colors */
+.kyc {
+  background-color: #ffc107; /* Yellow */
+}
+.aml {
+  background-color: #dc3545; /* Red */
+}
+.digital-payments {
+  background-color: #17a2b8; /* Cyan */
+}
+.lending-norms {
+  background-color: #28a745; /* Green */
+}
+.data-handling {
+    background-color: #6f42c1; /* Purple */
+}
+.reporting {
+    background-color: #fd7e14; /* Orange */
+}
+.cyber-security {
+    background-color: #007bff; /* Blue */
+}
+.foreign-exchange {
+    background-color: #6c757d; /* Gray */
+}
+.capital-adequacy {
+    background-color: #20c997; /* Teal */
+}
+.consumer-protection {
+    background-color: #e83e8c; /* Pink */
+}
+
+/* Severity Colors */
+.high {
+  background-color: #dc3545; /* Red */
+}
+.medium {
+  background-color: #ffc107; /* Yellow */
+}
+.low {
+  background-color: #28a745; /* Green */
+}
+
+.loading-chart-data {
+  text-align: center;
+  color: #777;
+}

@@ -11,6 +11,7 @@
     pkgs.python3Packages.pdfplumber
     pkgs.nodejs
     pkgs.npm
+    pkgs.supabase-cli
   ];
 
   services.docker.enable = true;
