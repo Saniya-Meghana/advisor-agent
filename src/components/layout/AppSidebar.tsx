@@ -27,9 +27,10 @@ const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Documents", url: "/documents", icon: FileText },
   { title: "Audit Log", url: "/audit", icon: ScrollText },
+  { title: "Admin", url: "/admin", icon: Settings },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Help", url: "/onboarding", icon: HelpCircle },
-  { title: "Compliance Assistant", url: "/assistant", icon: MessageCircle }, // 👈 Added here
+  { title: "Compliance Assistant", url: "/assistant", icon: MessageCircle },
 ];
 
 export function AppSidebar() {

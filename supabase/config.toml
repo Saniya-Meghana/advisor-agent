@@ -30,6 +30,21 @@ site_url = "http://localhost:3000"
 additional_redirect_urls = ["https://lovable.app"]
 jwt_expiry = 3600
 
+[functions.analyze-document]
+verify_jwt = true
+
+[functions.export-compliance-report]
+verify_jwt = true
+
+[functions.generate-pdf-report]
+verify_jwt = true
+
+[functions.batch-analyze-documents]
+verify_jwt = true
+
+[functions.scheduled-reanalysis]
+verify_jwt = false
+
 [functions.crawl-website]
 verify_jwt = false
 
