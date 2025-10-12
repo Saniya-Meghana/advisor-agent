@@ -127,6 +127,7 @@ export type Database = {
           model_version: string | null
           recommendations: Json
           regulation_template_id: string | null
+          regulatory_frameworks: Json | null
           risk_level: string
           updated_at: string
           user_id: string
@@ -145,6 +146,7 @@ export type Database = {
           model_version?: string | null
           recommendations?: Json
           regulation_template_id?: string | null
+          regulatory_frameworks?: Json | null
           risk_level: string
           updated_at?: string
           user_id: string
@@ -163,6 +165,7 @@ export type Database = {
           model_version?: string | null
           recommendations?: Json
           regulation_template_id?: string | null
+          regulatory_frameworks?: Json | null
           risk_level?: string
           updated_at?: string
           user_id?: string
@@ -222,9 +225,11 @@ export type Database = {
           file_type: string
           filename: string
           id: string
+          last_reanalysis_date: string | null
           original_name: string
           priority: string | null
           processing_status: string
+          reanalysis_frequency_days: number | null
           retention_policy_days: number | null
           source_system: string | null
           storage_path: string
@@ -239,9 +244,11 @@ export type Database = {
           file_type: string
           filename: string
           id?: string
+          last_reanalysis_date?: string | null
           original_name: string
           priority?: string | null
           processing_status?: string
+          reanalysis_frequency_days?: number | null
           retention_policy_days?: number | null
           source_system?: string | null
           storage_path: string
@@ -256,9 +263,11 @@ export type Database = {
           file_type?: string
           filename?: string
           id?: string
+          last_reanalysis_date?: string | null
           original_name?: string
           priority?: string | null
           processing_status?: string
+          reanalysis_frequency_days?: number | null
           retention_policy_days?: number | null
           source_system?: string | null
           storage_path?: string
@@ -371,6 +380,39 @@ export type Database = {
         }
         Relationships: []
       }
+      regulatory_frameworks: {
+        Row: {
+          clauses: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+          version: string
+        }
+        Insert: {
+          clauses?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+          version?: string
+        }
+        Update: {
+          clauses?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+          version?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -397,7 +439,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_compliance_metrics: {
+        Row: {
+          avg_compliance_score: number | null
+          completed_documents: number | null
+          critical_risks: number | null
+          failed_documents: number | null
+          high_risks: number | null
+          low_risks: number | null
+          medium_risks: number | null
+          processing_documents: number | null
+          total_documents: number | null
+          total_reports: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
