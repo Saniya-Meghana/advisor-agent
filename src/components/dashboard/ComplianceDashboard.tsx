@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Bar } from 'react-chartjs-2';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -8,25 +8,44 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from 'chart.js';
-import './ComplianceDashboard.css'; // We'll create this file next
+import { createClient } from '@supabase/supabase-js';
+import './ComplianceDashboard.css';
 
+// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
 
-interface RiskData {
+// Initialize Supabase Client
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// --- Interfaces ---
+interface ChartData {
   labels: string[];
   datasets: {
     label: string;
     data: number[];
-    backgroundColor: string;
+    backgroundColor: string | string[];
   }[];
+}
+
+interface PieChartData {
+    labels: string[];
+    datasets: {
+      data: number[];
+      backgroundColor: string[];
+      hoverBackgroundColor: string[];
+    }[];
 }
 
 interface Document {
@@ -37,111 +56,155 @@ interface Document {
   domain: string;
   risk_type: string;
   severity: string;
-  download_link: string; // Assuming a download link
+  compliance_score?: number;
+  download_link?: string;
 }
 
 const ComplianceDashboard: React.FC = () => {
-  const [riskDistribution, setRiskDistribution] = useState<RiskData>({
-    labels: [],
-    datasets: [],
-  });
+  // --- State ---
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [filters, setFilters] = useState({ domain: 'All', severity: 'All', source: 'All' });
+  const [riskDistribution, setRiskDistribution] = useState<ChartData>({ labels: [], datasets: [] });
+  const [scoreDistribution, setScoreDistribution] = useState<ChartData>({ labels: [], datasets: [] });
+  const [typeBreakdown, setTypeBreakdown] = useState<PieChartData>({ labels: [], datasets: [] });
+  const [filters, setFilters] = useState({
+    domain: 'All',
+    severity: 'All',
+    source: 'All',
+    startDate: '',
+    endDate: '',
+  });
 
+  // --- Data Fetching Effect ---
   useEffect(() => {
-    // In a real application, you'd fetch this data from Supabase
-    // For now, let's use mock data
-    const mockRiskData: RiskData = {
-      labels: ["KYC", "AML", "Digital Payments", "Lending Norms", "Cyber Security", "Foreign Exchange", "Capital Adequacy", "Consumer Protection"],
-      datasets: [{
-        label: "Risk Count",
-        data: [12, 8, 15, 6, 9, 3, 7, 10],
-        backgroundColor: "#4e79a7"
-      }]
+    const fetchDocuments = async () => {
+      let query = supabase.from('compliance_reports').select('*');
+
+      // Apply filters
+      if (filters.domain !== 'All') query = query.eq('domain', filters.domain);
+      if (filters.severity !== 'All') query = query.eq('severity', filters.severity);
+      if (filters.source !== 'All') query = query.eq('source', filters.source);
+      if (filters.startDate) query = query.gte('date', filters.startDate);
+      if (filters.endDate) query = query.lte('date', filters.endDate);
+
+      const { data, error } = await query;
+      if (error) {
+        console.error('Error fetching documents:', error);
+        return;
+      }
+      setDocuments(data || []);
     };
-    setRiskDistribution(mockRiskData);
 
-    const mockDocuments: Document[] = [
-      {
-        doc_id: "doc1", title: "RBI KYC Circular 2023", source: "RBI", date: "2023-01-15",
-        domain: "Financial", risk_type: "KYC", severity: "High", download_link: "#"
-      },
-      {
-        doc_id: "doc2", title: "GDPR Article 5 Compliance", source: "GDPR", date: "2018-05-25",
-        domain: "Data Privacy", risk_type: "Data Handling", severity: "High", download_link: "#"
-      },
-      {
-        doc_id: "doc3", title: "SOX Section 302 Requirements", source: "SOX", date: "2002-07-30",
-        domain: "Corporate Governance", risk_type: "Reporting", severity: "Medium", download_link: "#"
-      },
-      {
-        doc_id: "doc4", title: "RBI Digital Payments Guidelines", source: "RBI", date: "2023-03-10",
-        domain: "Financial", risk_type: "Digital Payments", severity: "Medium", download_link: "#"
-      },
-      {
-        doc_id: "doc5", title: "RBI Lending Norms Update", source: "RBI", date: "2023-04-01",
-        domain: "Financial", risk_type: "Lending Norms", severity: "Low", download_link: "#"
-      },
-    ];
-    setDocuments(mockDocuments);
-  }, []);
+    fetchDocuments();
+  }, [filters]);
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  // --- Data Processing for Charts ---
+  useEffect(() => {
+    // Risk Distribution (Bar Chart)
+    const riskCounts = documents.reduce((acc, doc) => {
+      acc[doc.risk_type] = (acc[doc.risk_type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    setRiskDistribution({
+      labels: Object.keys(riskCounts),
+      datasets: [{
+        label: 'Number of Documents by Risk Type',
+        data: Object.values(riskCounts),
+        backgroundColor: '#4e79a7',
+      }],
+    });
+
+    // Score Distribution (Histogram-style Bar Chart)
+    const scoreBins = documents.reduce((acc, doc) => {
+        const score = doc.compliance_score || 0;
+        if (score <= 20) acc['0-20']++;
+        else if (score <= 40) acc['21-40']++;
+        else if (score <= 60) acc['41-60']++;
+        else if (score <= 80) acc['61-80']++;
+        else acc['81-100']++;
+        return acc;
+    }, { '0-20': 0, '21-40': 0, '41-60': 0, '61-80': 0, '81-100': 0 });
+
+    setScoreDistribution({
+        labels: Object.keys(scoreBins),
+        datasets: [{
+            label: 'Compliance Score Distribution',
+            data: Object.values(scoreBins),
+            backgroundColor: '#f28e2c',
+        }],
+    });
+
+    // Document Type (Domain) Breakdown (Pie Chart)
+    const domainCounts = documents.reduce((acc, doc) => {
+        acc[doc.domain] = (acc[doc.domain] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+
+    setTypeBreakdown({
+        labels: Object.keys(domainCounts),
+        datasets: [{
+            data: Object.values(domainCounts),
+            backgroundColor: ['#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7', '#9c755f', '#bab0ab'],
+            hoverBackgroundColor: ['#d14749', '#66a7a2', '#49913f', '#ddb939', '#9f6a91', '#ef8d97', '#8c654f', '#aab0ab'],
+        }],
+    });
+
+  }, [documents]);
+
+  // --- Event Handlers ---
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
-  const filteredDocuments = documents.filter(doc => {
-    return (filters.domain === 'All' || doc.domain === filters.domain) &&
-           (filters.severity === 'All' || doc.severity === filters.severity) &&
-           (filters.source === 'All' || doc.source === filters.source);
-  });
+  const filteredDocuments = useMemo(() => documents, [documents]);
 
   return (
     <div className="compliance-dashboard">
       <h1>Compliance Dashboard</h1>
 
-      <section className="risk-distribution-chart card">
-        <h2>Risk Distribution Across Domains</h2>
-        {riskDistribution.labels.length > 0 ? (
-          <Bar data={riskDistribution} options={{ responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Risk Type Distribution' } } }} />
-        ) : (
-          <p>Loading chart data...</p>
-        )}
-      </section>
+      <div className="charts-grid">
+        <section className="chart-card card">
+          <h2>Risk Distribution</h2>
+          <Bar data={riskDistribution} options={{ responsive: true, maintainAspectRatio: false }} />
+        </section>
+        <section className="chart-card card">
+          <h2>Compliance Score Distribution</h2>
+          <Bar data={scoreDistribution} options={{ responsive: true, maintainAspectRatio: false }} />
+        </section>
+        <section className="chart-card card">
+          <h2>Document Domain Breakdown</h2>
+          <div className="pie-chart-container">
+             <Pie data={typeBreakdown} options={{ responsive: true, maintainAspectRatio: false }} />
+          </div>
+        </section>
+      </div>
 
       <section className="document-explorer card">
         <h2>Document Explorer</h2>
         <div className="filters">
+          <input type="date" name="startDate" onChange={handleFilterChange} value={filters.startDate} />
+          <input type="date" name="endDate" onChange={handleFilterChange} value={filters.endDate} />
           <select name="domain" onChange={handleFilterChange} value={filters.domain}>
             <option value="All">All Domains</option>
             <option value="Financial">Financial</option>
             <option value="Data Privacy">Data Privacy</option>
-            <option value="Corporate Governance">Corporate Governance</option>
           </select>
           <select name="severity" onChange={handleFilterChange} value={filters.severity}>
-            <option value="All">All Severities</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-          <select name="source" onChange={handleFilterChange} value={filters.source}>
-            <option value="All">All Sources</option>
-            <option value="RBI">RBI</option>
-            <option value="GDPR">GDPR</option>
-            <option value="SOX">SOX</option>
-          </select>
+             <option value="All">All Severities</option>
+             <option value="High">High</option>
+             <option value="Medium">Medium</option>
+             <option value="Low">Low</option>
+           </select>
         </div>
         <div className="document-list">
           {filteredDocuments.length > 0 ? (
             filteredDocuments.map(doc => (
               <div key={doc.doc_id} className="document-item">
                 <h3>{doc.title}</h3>
-                <p><strong>Source:</strong> {doc.source}</p>
-                <p><strong>Date:</strong> {doc.date}</p>
-                <p><strong>Domain:</strong> {doc.domain}</p>
-                <p><strong>Risk Type:</strong> <span className={`risk-tag ${doc.risk_type.toLowerCase().replace(/\s/g, '-')}`}>{doc.risk_type}</span></p>
-                <p><strong>Severity:</strong> <span className={`severity-tag ${doc.severity.toLowerCase()}`}>{doc.severity}</span></p>
-                <a href={doc.download_link} target="_blank" rel="noopener noreferrer">Download</a>
+                <p><strong>Source:</strong> {doc.source} | <strong>Date:</strong> {new Date(doc.date).toLocaleDateString()}</p>
+                <p><strong>Risk Type:</strong> <span className={`risk-tag`}>{doc.risk_type}</span> | <strong>Severity:</strong> <span className={`severity-tag ${doc.severity?.toLowerCase()}`}>{doc.severity}</span></p>
+                {doc.compliance_score && <p><strong>Compliance Score:</strong> {doc.compliance_score}</p>}
+                <a href={doc.download_link} target="_blank" rel="noopener noreferrer">Download Original</a>
               </div>
             ))
           ) : (

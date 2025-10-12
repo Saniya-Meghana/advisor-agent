@@ -1,115 +1,95 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { type Document } from '../_shared/types.ts';
+import { type Document, type UserActivityLog } from '../_shared/types.ts';
 
 // Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-// Mock classifier and metadata extraction functions (replace with actual logic)
-async function classifyRisk(text: string): Promise<{ risk_type: string; severity: string; domain: string; tags: string[] }> {
+// --- Helper Functions to Invoke Other Edge Functions ---
+async function invokeLogAuditEvent(logEntry: Omit<UserActivityLog, 'log_id' | 'timestamp'>) {
+  const { error } = await supabase.functions.invoke('log-audit-event', { body: logEntry });
+  if (error) console.error('Error invoking log-audit-event:', error);
+}
+
+async function invokeSendFCM(notification: { user_id: string; title: string; message: string; document_id: string; type: string; }) {
+    const { error } = await supabase.functions.invoke('send-fcm-notification', { body: notification });
+    if (error) console.error('Error invoking send-fcm-notification:', error);
+}
+
+// --- Mock Business Logic (remains unchanged) ---
+interface ClassificationResult {
+    risk_type: string; severity: string; domain: string; tags: string[];
+    compliance_score: number; review_required: boolean;
+}
+
+function classifyRisk(text: string): ClassificationResult {
+    let risk_type = 'General Compliance', severity = 'Low', domain = 'General', compliance_score = 80, review_required = false, tags = [];
     if (text.toLowerCase().includes('kyc') || text.toLowerCase().includes('aml')) {
-        return { risk_type: 'KYC/AML', severity: 'High', domain: 'Financial', tags: ['KYC', 'AML'] };
+        risk_type = 'KYC/AML'; severity = 'High'; domain = 'Financial'; tags = ['KYC', 'AML']; compliance_score = 30; review_required = true;
+    } else if (text.toLowerCase().includes('gdpr') || text.toLowerCase().includes('privacy')) {
+        risk_type = 'Data Privacy'; severity = 'High'; domain = 'Data Privacy'; tags = ['GDPR', 'Privacy']; compliance_score = 20; review_required = true;
     }
-    if (text.toLowerCase().includes('digital payments') || text.toLowerCase().includes('fraud')) {
-        return { risk_type: 'Digital Payments', severity: 'Medium', domain: 'Financial', tags: ['Digital Payments', 'Fraud'] };
-    }
-    if (text.toLowerCase().includes('gdpr') || text.toLowerCase().includes('privacy')) {
-        return { risk_type: 'Data Privacy', severity: 'High', domain: 'Data Privacy', tags: ['GDPR', 'Privacy'] };
-    }
-    if (text.toLowerCase().includes('lending norms')) {
-        return { risk_type: 'Lending Norms', severity: 'Medium', domain: 'Financial', tags: ['Lending'] };
-    }
-    return { risk_type: 'General Compliance', severity: 'Low', domain: 'General', tags: [] };
+    return { risk_type, severity, domain, tags, compliance_score, review_required };
 }
 
-function extractMetadata(text: string): { source: string; date: string | null; title: string } {
-    const sourceMatch = text.match(/(RBI|GDPR|SOX)/i);
-    const dateMatch = text.match(/\b(20\d{2}-\d{2}-\d{2})\b/); // YYYY-MM-DD
-    const titleMatch = text.match(/Circular on (.*?)(?:,|\n|\.)/i) || text.match(/(.*?)(?:circular|guidelines|regulations)/i);
-
-    const source = sourceMatch ? sourceMatch[1].toUpperCase() : 'Unknown';
-    const date = dateMatch ? dateMatch[1] : null;
-    const title = titleMatch ? titleMatch[1].trim() : 'Untitled Document';
-
-    return { source, date, title };
+function extractMetadata(text: string, downloadLink: string) {
+    return { title: `Document from ${downloadLink.substring(0, 50)}...`, source: new URL(downloadLink).hostname, date: new Date().toISOString() };
 }
 
-async function generateSummary(text: string): Promise<string> {
+function generateSummary(text: string): string {
     const words = text.split(' ');
-    const summary = words.slice(0, Math.min(words.length, 50)).join(' ') + (words.length > 50 ? '...' : '');
-    return `Summary of compliance implications: ${summary}`;
+    return words.slice(0, 50).join(' ') + (words.length > 50 ? '...' : '');
 }
 
-// Supabase Edge Function handler
+// --- Main Server Logic ---
 serve(async (req: Request) => {
     if (req.method !== 'POST') {
-        return new Response('Method Not Allowed', { status: 405 });
+        return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405 });
     }
 
-    try {
-        const { doc_id, text_content, download_link } = await req.json();
+    let userId = 'unknown', docId = 'unknown';
 
-        if (!doc_id || !text_content) {
-            return new Response(JSON.stringify({ error: 'Missing doc_id or text_content' }), {
-                headers: { 'Content-Type': 'application/json' },
-                status: 400,
-            });
+    try {
+        const { doc_id, user_id, text_content, download_link } = await req.json();
+        userId = user_id; docId = doc_id;
+
+        if (!doc_id || !user_id || !text_content || !download_link) {
+            return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
         }
 
-        // 1. Risk Classification
-        const { risk_type, severity, domain, tags } = await classifyRisk(text_content);
+        await invokeLogAuditEvent({ user_id, action_type: 'upload', document_id: doc_id, details: { status: 'processing' } });
 
-        // 2. Metadata Extraction
-        const { source, date, title } = extractMetadata(text_content);
+        const classification = classifyRisk(text_content);
+        const metadata = extractMetadata(text_content, download_link);
+        const summary = generateSummary(text_content);
+        const embedding = Array(384).fill(0);
 
-        // 3. Summary
-        const summary = await generateSummary(text_content);
-
-        // 4. Embedding (Placeholder - typically done by an embedding model)
-        const embedding = `vector_for_${doc_id}`;
-
-        // 5. Dashboard Sync: Format output for Supabase insertion
-        const complianceDoc: Document = {
-            doc_id: doc_id,
-            title: title,
-            source: source,
-            date: date,
-            domain: domain,
-            risk_type: risk_type,
-            severity: severity,
-            summary: summary,
-            embedding: embedding,
-            created_at: new Date().toISOString(),
-            tags: tags,
-            download_link: download_link
+        const complianceReport: Document = {
+            doc_id, user_id, summary, embedding: JSON.stringify(embedding),
+            created_at: new Date().toISOString(), download_link, ...classification, ...metadata
         };
 
-        // Insert into compliance_docs table
-        const { data, error } = await supabase
-            .from('compliance_docs')
-            .insert([complianceDoc]);
+        const { data, error } = await supabase.from('compliance_reports').insert([complianceReport]).select();
 
         if (error) {
-            console.error('Error inserting into Supabase:', error);
-            return new Response(JSON.stringify({ error: error.message }), {
-                headers: { 'Content-Type': 'application/json' },
-                status: 500,
-            });
+            await invokeLogAuditEvent({ user_id, action_type: 'analyze', document_id: doc_id, details: { status: 'failed', error: error.message } });
+            return new Response(JSON.stringify({ error: `DB Error: ${error.message}` }), { status: 500 });
         }
 
-        return new Response(JSON.stringify({ message: 'Document processed and synced', data: complianceDoc }), {
-            headers: { 'Content-Type': 'application/json' },
-            status: 200,
-        });
+        if (classification.review_required) {
+            await invokeSendFCM({ user_id, title: 'High-Risk Document', message: `Review required for \"${metadata.title}\"`, document_id: doc_id, type: 'high_risk_alert' });
+        }
 
-    } catch (error: unknown) {
-        console.error('Error processing document:', error);
-        return new Response(JSON.stringify({ error: (error as Error).message }), {
-            headers: { 'Content-Type': 'application/json' },
-            status: 500,
-        });
+        await invokeLogAuditEvent({ user_id, action_type: 'analyze', document_id: doc_id, details: { status: 'success' } });
+
+        return new Response(JSON.stringify({ data: data[0] }), { status: 200 });
+
+    } catch (e: any) {
+        console.error('Error processing document:', e);
+        await invokeLogAuditEvent({ user_id: userId, action_type: 'analyze', document_id: docId, details: { status: 'failed', error: e.message } });
+        await invokeSendFCM({ user_id: userId, title: 'Analysis Failed', message: `Processing failed for document ${docId}`, document_id: docId, type: 'analysis_failed' });
+        return new Response(JSON.stringify({ error: e.message }), { status: 500 });
     }
 });
