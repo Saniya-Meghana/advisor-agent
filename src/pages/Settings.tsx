@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { User, Key, Shield, Palette, Save, AlertTriangle } from 'lucide-react';
+import { NotificationPreferences } from '@/components/settings/NotificationPreferences';
 
 interface UserProfile {
   id: string;
@@ -306,6 +307,9 @@ const Settings = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Notification Preferences */}
+          <NotificationPreferences />
 
           {/* API Keys & Integration */}
           <Card className="card-elevated">

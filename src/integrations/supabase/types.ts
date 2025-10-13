@@ -329,6 +329,39 @@ export type Database = {
         }
         Relationships: []
       }
+      otp_attempts: {
+        Row: {
+          attempts: number | null
+          created_at: string | null
+          expires_at: string
+          id: string
+          metadata: Json | null
+          otp_type: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          metadata?: Json | null
+          otp_type: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          metadata?: Json | null
+          otp_type?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -478,6 +511,36 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string | null
+          email_alerts: boolean | null
+          id: string
+          phone_number: string | null
+          sms_alerts: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_alerts?: boolean | null
+          id?: string
+          phone_number?: string | null
+          sms_alerts?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_alerts?: boolean | null
+          id?: string
+          phone_number?: string | null
+          sms_alerts?: boolean | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
