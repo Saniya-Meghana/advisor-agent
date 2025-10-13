@@ -11,8 +11,29 @@ jobs:
       - name: Install Dependencies and Build
         run: cd frontend && npm install && npm run build
       - name: Deploy to Firebase
+        id: deploy
         uses: w9jds/firebase-action@v2.2.0
         with:
           args: deploy --only hosting
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Log Deployment Success
+        if: ${{ success() }}
+        run: |
+          npm install
+          node scripts/log_deployment.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COMMIT_ID: ${{ github.sha }}
+          STATUS: success
+      - name: Log Deployment Failure
+        if: ${{ failure() }}
+        run: |
+          npm install
+          node scripts/log_deployment.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COMMIT_ID: ${{ github.sha }}
+          STATUS: failure
