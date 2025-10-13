@@ -42,6 +42,24 @@ const handler = async (req: Request): Promise<Response> => {
       additional_data 
     }: NotificationRequest = await req.json();
 
+    // Check user notification preferences
+    const { data: settings } = await supabaseClient
+      .from('user_settings')
+      .select('email_alerts')
+      .eq('user_id', user_id)
+      .maybeSingle();
+
+    if (settings && !settings.email_alerts) {
+      console.log('Email alerts disabled for user:', user_id);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'Email alerts disabled' 
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     // Get user profile
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
@@ -63,41 +81,76 @@ const handler = async (req: Request): Promise<Response> => {
       additional_data
     });
 
-    const { data: emailResponse, error: emailError } = await resend.emails.send({
-      from: "Compliance Assistant <noreply@yourdomain.com>",
-      to: [profile.email],
-      subject,
-      html: htmlContent,
-    });
+    // Retry logic with exponential backoff
+    let lastError;
+    const maxRetries = 3;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const { data: emailResponse, error: emailError } = await resend.emails.send({
+          from: "Compliance Assistant <onboarding@resend.dev>",
+          to: [profile.email],
+          subject,
+          html: htmlContent,
+        });
 
-    if (emailError) {
-      throw new Error('Failed to send email');
-    }
+        if (emailError) {
+          throw new Error(`Resend error: ${emailError.message}`);
+        }
 
-    console.log("Email sent successfully:", emailResponse);
+        console.log("Email sent successfully:", emailResponse);
 
-    // Log audit event
-    await supabaseClient.functions.invoke('log-audit-event', {
-      body: {
-        user_id,
-        action: 'email_notification_sent',
-        resource_type: 'notification',
-        details: {
-          notification_type,
-          document_name,
-          risk_level,
+        // Create in-app notification
+        await supabaseClient.from('notifications').insert({
+          user_id,
+          title: subject,
+          message: `Compliance analysis complete for ${document_name}`,
+          type: risk_level === 'CRITICAL' || risk_level === 'HIGH' ? 'error' : 'success',
+          metadata: { 
+            ...additional_data, 
+            email_id: (emailResponse as EmailResponse)?.id,
+            channel: 'email',
+            risk_level,
+            compliance_score
+          }
+        });
+
+        // Log audit event
+        await supabaseClient.functions.invoke('log-audit-event', {
+          body: {
+            user_id,
+            action: 'email_notification_sent',
+            resource_type: 'notification',
+            details: {
+              notification_type,
+              document_name,
+              risk_level,
+              email_id: (emailResponse as EmailResponse)?.id
+            }
+          }
+        });
+
+        return new Response(JSON.stringify({ 
+          success: true,
           email_id: (emailResponse as EmailResponse)?.id
+        }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+
+      } catch (error) {
+        console.error(`Email send attempt ${attempt + 1} failed:`, error);
+        lastError = error;
+        
+        if (attempt < maxRetries - 1) {
+          // Exponential backoff: 1s, 2s, 4s
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
         }
       }
-    });
+    }
 
-    return new Response(JSON.stringify({ 
-      success: true,
-      email_id: (emailResponse as EmailResponse)?.id
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
+    // All retries failed
+    throw new Error(`Failed after ${maxRetries} attempts: ${(lastError as Error).message}`);
 
   } catch (error: unknown) {
     console.error("Error in send-notification-email function:", error);
