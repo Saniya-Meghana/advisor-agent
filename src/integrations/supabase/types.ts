@@ -278,6 +278,24 @@ export type Database = {
         }
         Relationships: []
       }
+      fcm_tokens: {
+        Row: {
+          created_at: string
+          fcm_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fcm_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fcm_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -410,6 +428,33 @@ export type Database = {
           name?: string
           updated_at?: string | null
           version?: string
+        }
+        Relationships: []
+      }
+      user_activity_logs: {
+        Row: {
+          action_type: string
+          details: Json | null
+          document_id: string | null
+          log_id: number
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          details?: Json | null
+          document_id?: string | null
+          log_id?: number
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          details?: Json | null
+          document_id?: string | null
+          log_id?: number
+          timestamp?: string
+          user_id?: string
         }
         Relationships: []
       }
