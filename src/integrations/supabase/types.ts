@@ -112,6 +112,53 @@ export type Database = {
         }
         Relationships: []
       }
+      checklist_items: {
+        Row: {
+          category: string
+          completed_at: string | null
+          created_at: string
+          deployment_id: string | null
+          description: string | null
+          id: string
+          is_completed: boolean | null
+          priority: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          completed_at?: string | null
+          created_at?: string
+          deployment_id?: string | null
+          description?: string | null
+          id?: string
+          is_completed?: boolean | null
+          priority: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          deployment_id?: string | null
+          description?: string | null
+          id?: string
+          is_completed?: boolean | null
+          priority?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_items_deployment_id_fkey"
+            columns: ["deployment_id"]
+            isOneToOne: false
+            referencedRelation: "deployment_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       compliance_reports: {
         Row: {
           analysis_summary: string | null
@@ -179,6 +226,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      deployment_events: {
+        Row: {
+          accuracy: number | null
+          action: string
+          checklist_completed: boolean | null
+          config_data: Json
+          created_at: string
+          environment: string
+          error_rate: number | null
+          id: string
+          latency_ms: number | null
+          override_requested: boolean | null
+          risk_level: string | null
+          risk_score: number | null
+          user_id: string
+        }
+        Insert: {
+          accuracy?: number | null
+          action: string
+          checklist_completed?: boolean | null
+          config_data?: Json
+          created_at?: string
+          environment: string
+          error_rate?: number | null
+          id?: string
+          latency_ms?: number | null
+          override_requested?: boolean | null
+          risk_level?: string | null
+          risk_score?: number | null
+          user_id: string
+        }
+        Update: {
+          accuracy?: number | null
+          action?: string
+          checklist_completed?: boolean | null
+          config_data?: Json
+          created_at?: string
+          environment?: string
+          error_rate?: number | null
+          id?: string
+          latency_ms?: number | null
+          override_requested?: boolean | null
+          risk_level?: string | null
+          risk_score?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       document_embeddings: {
         Row: {
@@ -461,6 +556,122 @@ export type Database = {
           name?: string
           updated_at?: string | null
           version?: string
+        }
+        Relationships: []
+      }
+      risk_assessments: {
+        Row: {
+          config_fingerprint: string
+          created_at: string
+          deployment_id: string | null
+          id: string
+          mitigation_steps: Json
+          risk_factors: Json
+          risk_level: string
+          risk_score: number
+          user_id: string
+        }
+        Insert: {
+          config_fingerprint: string
+          created_at?: string
+          deployment_id?: string | null
+          id?: string
+          mitigation_steps?: Json
+          risk_factors?: Json
+          risk_level: string
+          risk_score: number
+          user_id: string
+        }
+        Update: {
+          config_fingerprint?: string
+          created_at?: string
+          deployment_id?: string | null
+          id?: string
+          mitigation_steps?: Json
+          risk_factors?: Json
+          risk_level?: string
+          risk_score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_assessments_deployment_id_fkey"
+            columns: ["deployment_id"]
+            isOneToOne: false
+            referencedRelation: "deployment_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_metrics: {
+        Row: {
+          approvals_count: number | null
+          checklist_completed_count: number | null
+          created_at: string
+          deployments_count: number | null
+          governance_score: number | null
+          id: string
+          period_end: string
+          period_start: string
+          rollbacks_count: number | null
+          sandbox_runs_count: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approvals_count?: number | null
+          checklist_completed_count?: number | null
+          created_at?: string
+          deployments_count?: number | null
+          governance_score?: number | null
+          id?: string
+          period_end: string
+          period_start: string
+          rollbacks_count?: number | null
+          sandbox_runs_count?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approvals_count?: number | null
+          checklist_completed_count?: number | null
+          created_at?: string
+          deployments_count?: number | null
+          governance_score?: number | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          rollbacks_count?: number | null
+          sandbox_runs_count?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      training_runs: {
+        Row: {
+          accuracy: number | null
+          config: Json | null
+          id: string
+          loss: number | null
+          notes: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          accuracy?: number | null
+          config?: Json | null
+          id?: string
+          loss?: number | null
+          notes?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          accuracy?: number | null
+          config?: Json | null
+          id?: string
+          loss?: number | null
+          notes?: string | null
+          timestamp?: string | null
         }
         Relationships: []
       }

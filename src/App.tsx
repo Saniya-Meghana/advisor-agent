@@ -27,6 +27,10 @@ const NotificationCenter = lazy(() => import("@/components/notifications/Notific
 const Assistant = lazy(() => import("@/pages/Assistant"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const GovernancePulse = lazy(() => import("@/pages/GovernancePulse"));
+const TeamLeaderboard = lazy(() => import("@/pages/TeamLeaderboard"));
+const RiskAssessment = lazy(() => import("@/pages/RiskAssessment"));
+const DeploymentChecklist = lazy(() => import("@/pages/DeploymentChecklist"));
 
 const queryClient = new QueryClient();
 
@@ -107,6 +111,10 @@ const routes: AppRoute[] = [
   { path: "/onboarding", element: <Onboarding />, protected: true },
   { path: "/admin", element: <Admin />, protected: true },
   { path: "/notifications", element: <NotificationCenter />, protected: true },
+  { path: "/governance-pulse", element: <GovernancePulse />, protected: true },
+  { path: "/team-leaderboard", element: <TeamLeaderboard />, protected: true },
+  { path: "/risk-assessment", element: <RiskAssessment />, protected: true },
+  { path: "/deployment-checklist", element: <DeploymentChecklist />, protected: true },
   { path: "/auth", element: <Auth />, protected: false },
   { path: "*", element: <NotFound />, protected: false },
 ];

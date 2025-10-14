@@ -7,7 +7,11 @@ import {
   Settings,
   HelpCircle,
   LogOut,
-  MessageCircle
+  MessageCircle,
+  Activity,
+  Trophy,
+  Shield,
+  CheckCircle2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -27,10 +31,20 @@ const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Documents", url: "/documents", icon: FileText },
   { title: "Audit Log", url: "/audit", icon: ScrollText },
+  { title: "Compliance Assistant", url: "/assistant", icon: MessageCircle },
+];
+
+const governanceItems = [
+  { title: "Governance Pulse", url: "/governance-pulse", icon: Activity },
+  { title: "Risk Assessment", url: "/risk-assessment", icon: Shield },
+  { title: "Deployment Checklist", url: "/deployment-checklist", icon: CheckCircle2 },
+  { title: "Team Leaderboard", url: "/team-leaderboard", icon: Trophy },
+];
+
+const settingsItems = [
   { title: "Admin", url: "/admin", icon: Settings },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Help", url: "/onboarding", icon: HelpCircle },
-  { title: "Compliance Assistant", url: "/assistant", icon: MessageCircle },
 ];
 
 export function AppSidebar() {
@@ -82,11 +96,49 @@ export function AppSidebar() {
         </div>
 
         {/* Navigation */}
-        <SidebarGroup className="flex-1">
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+        <SidebarGroup>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={item.url} className={getNavCls(isActive(item.url))}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Governance */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Governance</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {governanceItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={item.url} className={getNavCls(isActive(item.url))}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Settings */}
+        <SidebarGroup className="flex-1">
+          <SidebarGroupLabel>Configuration</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls(isActive(item.url))}>
