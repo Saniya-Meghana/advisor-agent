@@ -14,42 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      audit_logs: {
-        Row: {
-          action: string
-          details: Json | null
-          id: string
-          ip_address: unknown | null
-          resource_id: string | null
-          resource_type: string
-          timestamp: string
-          user_agent: string | null
-          user_id: string
-        }
-        Insert: {
-          action: string
-          details?: Json | null
-          id?: string
-          ip_address?: unknown | null
-          resource_id?: string | null
-          resource_type: string
-          timestamp?: string
-          user_agent?: string | null
-          user_id: string
-        }
-        Update: {
-          action?: string
-          details?: Json | null
-          id?: string
-          ip_address?: unknown | null
-          resource_id?: string | null
-          resource_type?: string
-          timestamp?: string
-          user_agent?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       chat_messages: {
         Row: {
           content: string
@@ -117,102 +81,76 @@ export type Database = {
           category: string
           completed_at: string | null
           created_at: string
-          deployment_id: string | null
           description: string | null
           id: string
-          is_completed: boolean | null
+          is_completed: boolean
           priority: string
           title: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           category: string
           completed_at?: string | null
           created_at?: string
-          deployment_id?: string | null
           description?: string | null
           id?: string
-          is_completed?: boolean | null
-          priority: string
+          is_completed?: boolean
+          priority?: string
           title: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           category?: string
           completed_at?: string | null
           created_at?: string
-          deployment_id?: string | null
           description?: string | null
           id?: string
-          is_completed?: boolean | null
+          is_completed?: boolean
           priority?: string
           title?: string
+          updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "checklist_items_deployment_id_fkey"
-            columns: ["deployment_id"]
-            isOneToOne: false
-            referencedRelation: "deployment_events"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       compliance_reports: {
         Row: {
           analysis_summary: string | null
-          clause_scores: Json | null
           compliance_score: number
           created_at: string
           document_id: string
-          evidence_chunks: Json | null
           generated_at: string
           id: string
           issues_detected: Json
-          model_name: string | null
-          model_version: string | null
           recommendations: Json
-          regulation_template_id: string | null
-          regulatory_frameworks: Json | null
           risk_level: string
           updated_at: string
           user_id: string
         }
         Insert: {
           analysis_summary?: string | null
-          clause_scores?: Json | null
           compliance_score: number
           created_at?: string
           document_id: string
-          evidence_chunks?: Json | null
           generated_at?: string
           id?: string
           issues_detected?: Json
-          model_name?: string | null
-          model_version?: string | null
           recommendations?: Json
-          regulation_template_id?: string | null
-          regulatory_frameworks?: Json | null
           risk_level: string
           updated_at?: string
           user_id: string
         }
         Update: {
           analysis_summary?: string | null
-          clause_scores?: Json | null
           compliance_score?: number
           created_at?: string
           document_id?: string
-          evidence_chunks?: Json | null
           generated_at?: string
           id?: string
           issues_detected?: Json
-          model_name?: string | null
-          model_version?: string | null
           recommendations?: Json
-          regulation_template_id?: string | null
-          regulatory_frameworks?: Json | null
           risk_level?: string
           updated_at?: string
           user_id?: string
@@ -229,48 +167,30 @@ export type Database = {
       }
       deployment_events: {
         Row: {
-          accuracy: number | null
-          action: string
-          checklist_completed: boolean | null
-          config_data: Json
           created_at: string
-          environment: string
-          error_rate: number | null
+          description: string
+          event_type: string
           id: string
-          latency_ms: number | null
-          override_requested: boolean | null
-          risk_level: string | null
-          risk_score: number | null
+          metadata: Json | null
+          severity: string
           user_id: string
         }
         Insert: {
-          accuracy?: number | null
-          action: string
-          checklist_completed?: boolean | null
-          config_data?: Json
           created_at?: string
-          environment: string
-          error_rate?: number | null
+          description: string
+          event_type: string
           id?: string
-          latency_ms?: number | null
-          override_requested?: boolean | null
-          risk_level?: string | null
-          risk_score?: number | null
+          metadata?: Json | null
+          severity?: string
           user_id: string
         }
         Update: {
-          accuracy?: number | null
-          action?: string
-          checklist_completed?: boolean | null
-          config_data?: Json
           created_at?: string
-          environment?: string
-          error_rate?: number | null
+          description?: string
+          event_type?: string
           id?: string
-          latency_ms?: number | null
-          override_requested?: boolean | null
-          risk_level?: string | null
-          risk_score?: number | null
+          metadata?: Json | null
+          severity?: string
           user_id?: string
         }
         Relationships: []
@@ -320,15 +240,9 @@ export type Database = {
           file_type: string
           filename: string
           id: string
-          last_reanalysis_date: string | null
           original_name: string
-          priority: string | null
           processing_status: string
-          reanalysis_frequency_days: number | null
-          retention_policy_days: number | null
-          source_system: string | null
           storage_path: string
-          tags: string[] | null
           updated_at: string
           upload_date: string
           user_id: string
@@ -339,15 +253,9 @@ export type Database = {
           file_type: string
           filename: string
           id?: string
-          last_reanalysis_date?: string | null
           original_name: string
-          priority?: string | null
           processing_status?: string
-          reanalysis_frequency_days?: number | null
-          retention_policy_days?: number | null
-          source_system?: string | null
           storage_path: string
-          tags?: string[] | null
           updated_at?: string
           upload_date?: string
           user_id: string
@@ -358,101 +266,11 @@ export type Database = {
           file_type?: string
           filename?: string
           id?: string
-          last_reanalysis_date?: string | null
           original_name?: string
-          priority?: string | null
           processing_status?: string
-          reanalysis_frequency_days?: number | null
-          retention_policy_days?: number | null
-          source_system?: string | null
           storage_path?: string
-          tags?: string[] | null
           updated_at?: string
           upload_date?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      fcm_tokens: {
-        Row: {
-          created_at: string
-          fcm_token: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          fcm_token: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          fcm_token?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      notifications: {
-        Row: {
-          created_at: string
-          id: string
-          is_read: boolean
-          message: string
-          related_document_id: string | null
-          title: string
-          type: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_read?: boolean
-          message: string
-          related_document_id?: string | null
-          title: string
-          type?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_read?: boolean
-          message?: string
-          related_document_id?: string | null
-          title?: string
-          type?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      otp_attempts: {
-        Row: {
-          attempts: number | null
-          created_at: string | null
-          expires_at: string
-          id: string
-          metadata: Json | null
-          otp_type: string
-          status: string
-          user_id: string
-        }
-        Insert: {
-          attempts?: number | null
-          created_at?: string | null
-          expires_at: string
-          id?: string
-          metadata?: Json | null
-          otp_type: string
-          status: string
-          user_id: string
-        }
-        Update: {
-          attempts?: number | null
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          metadata?: Json | null
-          otp_type?: string
-          status?: string
           user_id?: string
         }
         Relationships: []
@@ -490,312 +308,84 @@ export type Database = {
         }
         Relationships: []
       }
-      regulation_templates: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          description: string | null
-          id: string
-          is_active: boolean
-          name: string
-          template_data: Json
-          updated_at: string
-          version: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          name: string
-          template_data: Json
-          updated_at?: string
-          version?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          name?: string
-          template_data?: Json
-          updated_at?: string
-          version?: string
-        }
-        Relationships: []
-      }
-      regulatory_frameworks: {
-        Row: {
-          clauses: Json | null
-          created_at: string | null
-          description: string | null
-          id: string
-          is_active: boolean | null
-          name: string
-          updated_at: string | null
-          version: string
-        }
-        Insert: {
-          clauses?: Json | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          name: string
-          updated_at?: string | null
-          version?: string
-        }
-        Update: {
-          clauses?: Json | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          name?: string
-          updated_at?: string | null
-          version?: string
-        }
-        Relationships: []
-      }
       risk_assessments: {
         Row: {
-          config_fingerprint: string
+          assessment_name: string
           created_at: string
-          deployment_id: string | null
           id: string
           mitigation_steps: Json
+          overall_risk_score: number
           risk_factors: Json
-          risk_level: string
-          risk_score: number
+          status: string
+          updated_at: string
           user_id: string
         }
         Insert: {
-          config_fingerprint: string
+          assessment_name: string
           created_at?: string
-          deployment_id?: string | null
           id?: string
           mitigation_steps?: Json
+          overall_risk_score: number
           risk_factors?: Json
-          risk_level: string
-          risk_score: number
+          status?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
-          config_fingerprint?: string
+          assessment_name?: string
           created_at?: string
-          deployment_id?: string | null
           id?: string
           mitigation_steps?: Json
+          overall_risk_score?: number
           risk_factors?: Json
-          risk_level?: string
-          risk_score?: number
+          status?: string
+          updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "risk_assessments_deployment_id_fkey"
-            columns: ["deployment_id"]
-            isOneToOne: false
-            referencedRelation: "deployment_events"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       team_metrics: {
         Row: {
-          approvals_count: number | null
-          checklist_completed_count: number | null
           created_at: string
-          deployments_count: number | null
-          governance_score: number | null
           id: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
           period_end: string
           period_start: string
-          rollbacks_count: number | null
-          sandbox_runs_count: number | null
-          updated_at: string
           user_id: string
         }
         Insert: {
-          approvals_count?: number | null
-          checklist_completed_count?: number | null
           created_at?: string
-          deployments_count?: number | null
-          governance_score?: number | null
           id?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value: number
           period_end: string
           period_start: string
-          rollbacks_count?: number | null
-          sandbox_runs_count?: number | null
-          updated_at?: string
           user_id: string
         }
         Update: {
-          approvals_count?: number | null
-          checklist_completed_count?: number | null
           created_at?: string
-          deployments_count?: number | null
-          governance_score?: number | null
           id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
           period_end?: string
           period_start?: string
-          rollbacks_count?: number | null
-          sandbox_runs_count?: number | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      training_runs: {
-        Row: {
-          accuracy: number | null
-          config: Json | null
-          id: string
-          loss: number | null
-          notes: string | null
-          timestamp: string | null
-        }
-        Insert: {
-          accuracy?: number | null
-          config?: Json | null
-          id?: string
-          loss?: number | null
-          notes?: string | null
-          timestamp?: string | null
-        }
-        Update: {
-          accuracy?: number | null
-          config?: Json | null
-          id?: string
-          loss?: number | null
-          notes?: string | null
-          timestamp?: string | null
-        }
-        Relationships: []
-      }
-      user_activity_logs: {
-        Row: {
-          action_type: string
-          details: Json | null
-          document_id: string | null
-          log_id: number
-          timestamp: string
-          user_id: string
-        }
-        Insert: {
-          action_type: string
-          details?: Json | null
-          document_id?: string | null
-          log_id?: number
-          timestamp?: string
-          user_id: string
-        }
-        Update: {
-          action_type?: string
-          details?: Json | null
-          document_id?: string | null
-          log_id?: number
-          timestamp?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_settings: {
-        Row: {
-          created_at: string | null
-          email_alerts: boolean | null
-          id: string
-          phone_number: string | null
-          sms_alerts: boolean | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          email_alerts?: boolean | null
-          id?: string
-          phone_number?: string | null
-          sms_alerts?: boolean | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          email_alerts?: boolean | null
-          id?: string
-          phone_number?: string | null
-          sms_alerts?: boolean | null
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
       }
     }
     Views: {
-      admin_compliance_metrics: {
-        Row: {
-          avg_compliance_score: number | null
-          completed_documents: number | null
-          critical_risks: number | null
-          failed_documents: number | null
-          high_risks: number | null
-          low_risks: number | null
-          medium_risks: number | null
-          processing_documents: number | null
-          total_documents: number | null
-          total_reports: number | null
-          total_users: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      log_audit_event: {
-        Args: {
-          p_action: string
-          p_details?: Json
-          p_resource_id?: string
-          p_resource_type: string
-          p_user_id: string
-        }
-        Returns: undefined
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin" | "auditor" | "analyst" | "viewer"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -922,8 +512,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["admin", "auditor", "analyst", "viewer"],
-    },
+    Enums: {},
   },
 } as const
