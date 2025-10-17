@@ -1,4 +1,4 @@
-# AI-Powered Compliance Document Analysis
+ru# AI-Powered Compliance Document Analysis
 
 This project is a web-based application that helps businesses analyze their compliance documents for potential risks. It uses a FastAPI backend for the risk analysis engine and a React frontend for the user interface.
 

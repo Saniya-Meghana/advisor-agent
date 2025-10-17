@@ -1,0 +1,1 @@
+CREATE POLICY "Allow all authenticated users to insert documents" ON public.documents FOR INSERT TO authenticated WITH CHECK (true);
