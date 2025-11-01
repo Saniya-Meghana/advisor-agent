@@ -31,6 +31,9 @@ const GovernancePulse = lazy(() => import("@/pages/GovernancePulse"));
 const TeamLeaderboard = lazy(() => import("@/pages/TeamLeaderboard"));
 const RiskAssessment = lazy(() => import("@/pages/RiskAssessment"));
 const DeploymentChecklist = lazy(() => import("@/pages/DeploymentChecklist"));
+const DeploymentSimulation = lazy(() => import("@/pages/DeploymentSimulation"));
+const GovernanceHistory = lazy(() => import("@/pages/GovernanceHistory"));
+const AdvancedAnalytics = lazy(() => import("@/pages/AdvancedAnalytics"));
 
 const queryClient = new QueryClient();
 
@@ -115,6 +118,9 @@ const routes: AppRoute[] = [
   { path: "/team-leaderboard", element: <TeamLeaderboard />, protected: true },
   { path: "/risk-assessment", element: <RiskAssessment />, protected: true },
   { path: "/deployment-checklist", element: <DeploymentChecklist />, protected: true },
+  { path: "/deployment-simulation", element: <DeploymentSimulation />, protected: true },
+  { path: "/governance-history", element: <GovernanceHistory />, protected: true },
+  { path: "/advanced-analytics", element: <AdvancedAnalytics />, protected: true },
   { path: "/auth", element: <Auth />, protected: false },
   { path: "*", element: <NotFound />, protected: false },
 ];

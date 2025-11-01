@@ -11,7 +11,10 @@ import {
   Activity,
   Trophy,
   Shield,
-  CheckCircle2
+  CheckCircle2,
+  PlayCircle,
+  History,
+  BarChart3
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -39,6 +42,9 @@ const governanceItems = [
   { title: "Risk Assessment", url: "/risk-assessment", icon: Shield },
   { title: "Deployment Checklist", url: "/deployment-checklist", icon: CheckCircle2 },
   { title: "Team Leaderboard", url: "/team-leaderboard", icon: Trophy },
+  { title: "Deployment Simulation", url: "/deployment-simulation", icon: PlayCircle },
+  { title: "Governance History", url: "/governance-history", icon: History },
+  { title: "Advanced Analytics", url: "/advanced-analytics", icon: BarChart3 },
 ];
 
 const settingsItems = [
