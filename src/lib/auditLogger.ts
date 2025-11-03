@@ -19,14 +19,11 @@ export const addAuditLog = async ({
 }) => {
   const { error } = await supabase.from("audit_logs").insert([
     {
-      user_id: userId, // real logged-in user UUID
+      user_id: userId,
       action,
       resource_type,
       resource_id: resource_id || null,
-      details: { description, risk_level }, // stored as JSON
-      ip_address: null, // can be filled server-side if needed
-      user_agent: navigator.userAgent,
-      timestamp: new Date().toISOString(),
+      details: { description, risk_level, user_agent: navigator.userAgent },
     },
   ]);
 

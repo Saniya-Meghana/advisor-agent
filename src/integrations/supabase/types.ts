@@ -154,6 +154,8 @@ export type Database = {
           generated_at: string
           id: string
           issues_detected: Json
+          model_name: string | null
+          model_version: string | null
           recommendations: Json
           regulation_template_id: string | null
           risk_level: string
@@ -168,6 +170,8 @@ export type Database = {
           generated_at?: string
           id?: string
           issues_detected?: Json
+          model_name?: string | null
+          model_version?: string | null
           recommendations?: Json
           regulation_template_id?: string | null
           risk_level: string
@@ -182,6 +186,8 @@ export type Database = {
           generated_at?: string
           id?: string
           issues_detected?: Json
+          model_name?: string | null
+          model_version?: string | null
           recommendations?: Json
           regulation_template_id?: string | null
           risk_level?: string
