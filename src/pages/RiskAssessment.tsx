@@ -136,9 +136,9 @@ export default function RiskAssessment() {
       if (user) {
         const { error: insertError } = await supabase.from("risk_assessments").insert({
           user_id: user.id,
-          config_fingerprint: JSON.stringify(configData),
-          risk_score: result.score,
-          risk_level: result.level,
+          assessment_name: `Risk Assessment ${new Date().toLocaleDateString()}`,
+          overall_risk_score: result.score,
+          status: 'completed',
           risk_factors: result.factors as any,
           mitigation_steps: result.mitigationSteps as any,
         });

@@ -19,61 +19,35 @@ export function NotificationPreferences() {
   });
 
   useEffect(() => {
-    if (!user) return;
-
-    const fetchSettings = async () => {
-      const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error fetching settings:', error);
-        return;
-      }
-
-      if (data) {
-        setSettings({
-          email_alerts: data.email_alerts ?? true,
-          sms_alerts: data.sms_alerts ?? false,
-          phone_number: data.phone_number || "",
-        });
-      }
-    };
-
-    fetchSettings();
+    // TODO: Implement user_settings table
+    // if (!user) return;
+    // const fetchSettings = async () => {
+    //   const { data, error } = await supabase
+    //     .from('user_settings')
+    //     .select('*')
+    //     .eq('user_id', user.id)
+    //     .maybeSingle();
+    //   if (error) {
+    //     console.error('Error fetching settings:', error);
+    //     return;
+    //   }
+    //   if (data) {
+    //     setSettings({
+    //       email_alerts: data.email_alerts ?? true,
+    //       sms_alerts: data.sms_alerts ?? false,
+    //       phone_number: data.phone_number || "",
+    //     });
+    //   }
+    // };
+    // fetchSettings();
   }, [user]);
 
   const handleSave = async () => {
-    if (!user) return;
-
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('user_settings')
-        .upsert({
-          user_id: user.id,
-          ...settings,
-          updated_at: new Date().toISOString(),
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Settings saved",
-        description: "Your notification preferences have been updated.",
-      });
-    } catch (error) {
-      console.error('Error saving settings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save notification preferences.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Implement user_settings table
+    toast({
+      title: "Coming soon",
+      description: "Notification preferences will be available once user_settings table is created.",
+    });
   };
 
   return (

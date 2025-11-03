@@ -54,21 +54,15 @@ export default function GovernancePulse() {
 
         if (eventsError) throw eventsError;
 
-        // Calculate metrics
-        const deployments = events?.filter(e => e.action === "deploy").length || 0;
-        const rollbacks = events?.filter(e => e.action === "rollback").length || 0;
-        const overrides = events?.filter(e => e.override_requested).length || 0;
-        const highRisk = events?.filter(e => e.risk_level === "high" || e.risk_level === "critical").length || 0;
+        // Calculate metrics from deployment_events (limited schema)
+        // TODO: Add action, override_requested, risk_level, accuracy, latency_ms columns
+        const deployments = events?.filter(e => e.event_type === "deploy").length || 0;
+        const rollbacks = events?.filter(e => e.event_type === "rollback").length || 0;
+        const overrides = 0; // events?.filter(e => e.override_requested).length || 0;
+        const highRisk = events?.filter(e => e.severity === "high" || e.severity === "critical").length || 0;
 
-        const accuracyValues = events?.filter(e => e.accuracy).map(e => e.accuracy) || [];
-        const avgAcc = accuracyValues.length > 0 
-          ? accuracyValues.reduce((a, b) => Number(a) + Number(b), 0) / accuracyValues.length 
-          : 0;
-
-        const latencyValues = events?.filter(e => e.latency_ms).map(e => e.latency_ms) || [];
-        const avgLat = latencyValues.length > 0
-          ? latencyValues.reduce((a, b) => Number(a) + Number(b), 0) / latencyValues.length
-          : 0;
+        const avgAcc = 0; // No accuracy column yet
+        const avgLat = 0; // No latency_ms column yet
 
         // Fetch incomplete checklists
         const { data: checklists, error: checklistError } = await supabase
