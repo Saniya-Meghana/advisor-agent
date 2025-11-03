@@ -20,6 +20,9 @@ interface Document {
   upload_date: string;
   processing_status: string;
   created_at: string;
+  ocr_required?: boolean;
+  ocr_attempted?: boolean;
+  ocr_completed?: boolean;
 }
 
 interface DocumentListProps {
@@ -101,9 +104,34 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
 
   const retryAnalysis = async (doc: Document) => {
     try {
-      await supabase.functions.invoke('analyze-compliance', { body: { document_id: doc.id } });
-      setDocuments(prev => prev.map(d => d.id === doc.id ? { ...d, processing_status: 'pending' } : d));
-      toast({ title: "Analysis queued", description: `${doc.original_name} has been queued for re-analysis` });
+      // Check if document requires OCR
+      const shouldUseOCR = doc.ocr_required && !doc.ocr_completed;
+      
+      if (shouldUseOCR) {
+        // Retry with OCR
+        await supabase.functions.invoke('ocr-document', { 
+          body: { document_id: doc.id } 
+        });
+        setDocuments(prev => prev.map(d => 
+          d.id === doc.id ? { ...d, processing_status: 'processing' } : d
+        ));
+        toast({ 
+          title: "OCR processing started", 
+          description: `${doc.original_name} is being reprocessed with OCR` 
+        });
+      } else {
+        // Regular retry
+        await supabase.functions.invoke('analyze-document', { 
+          body: { document_id: doc.id } 
+        });
+        setDocuments(prev => prev.map(d => 
+          d.id === doc.id ? { ...d, processing_status: 'pending' } : d
+        ));
+        toast({ 
+          title: "Analysis queued", 
+          description: `${doc.original_name} has been queued for re-analysis` 
+        });
+      }
 
       // ✅ Audit log for re-analysis
       if (user) {
@@ -112,7 +140,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
           action: "document_reanalyzed",
           resource_type: "document",
           resource_id: doc.id,
-          description: `Re-analysis triggered for ${doc.original_name}`,
+          description: `Re-analysis triggered for ${doc.original_name} ${shouldUseOCR ? '(with OCR)' : ''}`,
           risk_level: "low",
         });
       }
@@ -185,8 +213,15 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
               <TableCell className="text-right">
                 <div className="flex items-center justify-end space-x-2">
                   <Button size="sm" variant="ghost" onClick={() => downloadDocument(doc)}><Download className="h-4 w-4" /></Button>
-                  {doc.processing_status === 'error' && (
-                    <Button size="sm" variant="ghost" onClick={() => retryAnalysis(doc)}><AlertTriangle className="h-4 w-4" /></Button>
+                  {(doc.processing_status === 'failed' || doc.processing_status === 'error') && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => retryAnalysis(doc)}
+                      title={doc.ocr_required && !doc.ocr_completed ? "Retry with OCR" : "Retry analysis"}
+                    >
+                      <AlertTriangle className="h-4 w-4" />
+                    </Button>
                   )}
                   <Button size="sm" variant="ghost" onClick={() => deleteDocument(doc)}><Trash2 className="h-4 w-4" /></Button>
                 </div>

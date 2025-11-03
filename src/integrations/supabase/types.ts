@@ -286,6 +286,9 @@ export type Database = {
           file_type: string
           filename: string
           id: string
+          ocr_attempted: boolean | null
+          ocr_completed: boolean | null
+          ocr_required: boolean | null
           original_name: string
           processing_status: string
           storage_path: string
@@ -299,6 +302,9 @@ export type Database = {
           file_type: string
           filename: string
           id?: string
+          ocr_attempted?: boolean | null
+          ocr_completed?: boolean | null
+          ocr_required?: boolean | null
           original_name: string
           processing_status?: string
           storage_path: string
@@ -312,6 +318,9 @@ export type Database = {
           file_type?: string
           filename?: string
           id?: string
+          ocr_attempted?: boolean | null
+          ocr_completed?: boolean | null
+          ocr_required?: boolean | null
           original_name?: string
           processing_status?: string
           storage_path?: string
@@ -320,6 +329,68 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      ingestion_failures: {
+        Row: {
+          created_at: string | null
+          document_id: string | null
+          error_details: Json | null
+          error_message: string
+          error_type: string
+          file_size: number
+          file_type: string
+          filename: string
+          id: string
+          last_retry_at: string | null
+          resolved: boolean | null
+          resolved_at: string | null
+          retry_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          document_id?: string | null
+          error_details?: Json | null
+          error_message: string
+          error_type: string
+          file_size: number
+          file_type: string
+          filename: string
+          id?: string
+          last_retry_at?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          retry_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          document_id?: string | null
+          error_details?: Json | null
+          error_message?: string
+          error_type?: string
+          file_size?: number
+          file_type?: string
+          filename?: string
+          id?: string
+          last_retry_at?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          retry_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingestion_failures_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {

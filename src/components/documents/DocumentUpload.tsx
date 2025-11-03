@@ -6,8 +6,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, X, FileText, File, CheckCircle } from 'lucide-react';
+import { Upload, X, FileText, File, CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { addAuditLog } from "@/lib/auditLogger";
+import { validateDocument, getValidationGuidance } from '@/utils/documentValidation';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface DocumentUploadProps {
   onUploadComplete?: () => void;
@@ -17,8 +19,10 @@ interface UploadFile {
   id: string;
   file: File;
   progress: number;
-  status: 'pending' | 'uploading' | 'processing' | 'completed' | 'error';
+  status: 'validating' | 'pending' | 'uploading' | 'processing' | 'completed' | 'error';
   error?: string;
+  requiresOCR?: boolean;
+  validationWarnings?: string[];
 }
 
 const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => {
@@ -37,35 +41,83 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx'
   };
 
-  const handleFileSelect = (files: FileList) => {
-    const validFiles = Array.from(files).filter(file => {
-      if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: `${file.name} is larger than 10MB`,
-          variant: "destructive",
-        });
-        return false;
-      }
-      if (!Object.keys(acceptedTypes).includes(file.type)) {
-        toast({
-          title: "Invalid file type",
-          description: `${file.name} is not a supported file type`,
-          variant: "destructive",
-        });
-        return false;
-      }
-      return true;
-    });
-
-    const newUploadFiles = validFiles.map(file => ({
+  const handleFileSelect = async (files: FileList) => {
+    const fileArray = Array.from(files);
+    
+    // Create upload file entries with validating status
+    const newUploadFiles = fileArray.map(file => ({
       id: Math.random().toString(36).substr(2, 9),
       file,
       progress: 0,
-      status: 'pending' as const
+      status: 'validating' as const,
+      requiresOCR: false,
+      validationWarnings: []
     }));
 
     setUploadFiles(prev => [...prev, ...newUploadFiles]);
+
+    // Validate each file
+    for (const uploadFile of newUploadFiles) {
+      try {
+        const validation = await validateDocument(uploadFile.file);
+        
+        if (!validation.isValid) {
+          // File failed validation
+          setUploadFiles(prev => prev.map(f =>
+            f.id === uploadFile.id ? {
+              ...f,
+              status: 'error' as const,
+              error: validation.errors.join('; ')
+            } : f
+          ));
+          
+          toast({
+            title: "Validation failed",
+            description: getValidationGuidance(validation),
+            variant: "destructive",
+          });
+          
+          // Log validation failure
+          if (user) {
+            await supabase.from('ingestion_failures').insert([{
+              user_id: user.id,
+              filename: uploadFile.file.name,
+              file_type: uploadFile.file.type,
+              file_size: uploadFile.file.size,
+              error_type: 'validation_error',
+              error_message: validation.errors.join('; '),
+              error_details: JSON.parse(JSON.stringify({ validation }))
+            }]);
+          }
+        } else {
+          // File passed validation
+          setUploadFiles(prev => prev.map(f =>
+            f.id === uploadFile.id ? {
+              ...f,
+              status: 'pending' as const,
+              requiresOCR: validation.requiresOCR,
+              validationWarnings: validation.warnings
+            } : f
+          ));
+          
+          if (validation.warnings.length > 0) {
+            toast({
+              title: "File validated",
+              description: getValidationGuidance(validation),
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Validation error:', error);
+        setUploadFiles(prev => prev.map(f =>
+          f.id === uploadFile.id ? {
+            ...f,
+            status: 'error' as const,
+            error: 'Failed to validate file'
+          } : f
+        ));
+      }
+    }
   };
 
   const uploadFile = async (uploadFile: UploadFile) => {
@@ -96,7 +148,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
           file_type: uploadFile.file.type,
           file_size: uploadFile.file.size,
           storage_path: uploadData.path,
-          processing_status: 'pending'
+          processing_status: 'pending',
+          ocr_required: uploadFile.requiresOCR || false
         })
         .select()
         .single();
@@ -117,20 +170,52 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
         f.id === uploadFile.id ? { ...f, progress: 75, status: 'processing' } : f
       ));
 
-      await triggerComplianceAnalysis(documentData.id);
+      // Trigger OCR if required, otherwise trigger normal analysis
+      if (uploadFile.requiresOCR) {
+        await triggerOCR(documentData.id);
+      } else {
+        await triggerComplianceAnalysis(documentData.id);
+      }
 
       setUploadFiles(prev => prev.map(f =>
         f.id === uploadFile.id ? { ...f, progress: 100, status: 'completed' } : f
       ));
 
+      const message = uploadFile.requiresOCR 
+        ? `${uploadFile.file.name} uploaded. OCR processing initiated.`
+        : `${uploadFile.file.name} uploaded and queued for analysis`;
+
       toast({
         title: "Upload successful",
-        description: `${uploadFile.file.name} has been uploaded and queued for analysis`,
+        description: message,
       });
 
       onUploadComplete?.();
     } catch (error: unknown) {
       console.error('Upload error:', error);
+      
+      // Log ingestion failure
+      if (user) {
+        try {
+          const documentId = (error as any).documentId;
+          await supabase.from('ingestion_failures').insert([{
+            user_id: user.id,
+            document_id: documentId,
+            filename: uploadFile.file.name,
+            file_type: uploadFile.file.type,
+            file_size: uploadFile.file.size,
+            error_type: 'upload_error',
+            error_message: (error as Error).message || 'Upload failed',
+            error_details: JSON.parse(JSON.stringify({ 
+              stack: (error as Error).stack,
+              requiresOCR: uploadFile.requiresOCR 
+            }))
+          }]);
+        } catch (logError) {
+          console.error('Failed to log ingestion failure:', logError);
+        }
+      }
+      
       setUploadFiles(prev => prev.map(f =>
         f.id === uploadFile.id ? {
           ...f,
@@ -143,6 +228,19 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
         description: (error as Error).message || 'Failed to upload file',
         variant: "destructive",
       });
+    }
+  };
+
+  const triggerOCR = async (documentId: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('ocr-document', {
+        body: { document_id: documentId }
+      });
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Failed to trigger OCR:', error);
+      throw error;
     }
   };
 
@@ -189,17 +287,32 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
   const getFileIcon = (fileType: string) => fileType.includes('pdf') ? <FileText className="h-5 w-5" /> : <File className="h-5 w-5" />;
   const getStatusBadge = (status: UploadFile['status']) => {
     switch (status) {
-      case 'pending': return <Badge variant="secondary">Pending</Badge>;
+      case 'validating': return <Badge variant="outline">Validating</Badge>;
+      case 'pending': return <Badge variant="secondary">Ready</Badge>;
       case 'uploading': return <Badge variant="outline">Uploading</Badge>;
       case 'processing': return <Badge variant="outline">Processing</Badge>;
       case 'completed': return <Badge variant="default" className="bg-green-500"><CheckCircle className="h-3 w-3 mr-1" />Completed</Badge>;
-      case 'error': return <Badge variant="destructive">Error</Badge>;
+      case 'error': return <Badge variant="destructive">Failed</Badge>;
       default: return null;
     }
   };
 
   return (
     <div className="space-y-6">
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertTitle>Document Upload Guidelines</AlertTitle>
+        <AlertDescription>
+          <ul className="list-disc list-inside text-sm space-y-1 mt-2">
+            <li>Supported formats: PDF, DOCX, DOC, CSV, XLS, XLSX, JPG, PNG, TIFF</li>
+            <li>Maximum file size: 10MB</li>
+            <li>Scanned documents and images will be processed using OCR</li>
+            <li>Encrypted PDFs cannot be processed</li>
+            <li>Ensure documents are readable and not corrupted</li>
+          </ul>
+        </AlertDescription>
+      </Alert>
+
       <Card className={`border-2 border-dashed transition-colors cursor-pointer ${
         isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
       }`}
@@ -213,7 +326,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
           <h3 className="text-lg font-medium mb-2">Upload Documents</h3>
           <p className="text-muted-foreground text-center mb-4">
             Drag and drop files here, or click to select files<br />
-            Supported: PDF, DOCX, DOC, CSV, XLS, XLSX (Max 10MB)
+            Files will be automatically validated before upload
           </p>
           <Button variant="outline">Choose Files</Button>
         </CardContent>
@@ -253,8 +366,21 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete }) => 
                   </Button>
                 </div>
               </div>
-              {(fileItem.status === 'uploading' || fileItem.status === 'processing') && (
+              {(fileItem.status === 'uploading' || fileItem.status === 'processing' || fileItem.status === 'validating') && (
                 <div className="mt-2"><Progress value={fileItem.progress} className="h-2" /></div>
+              )}
+              {fileItem.requiresOCR && fileItem.status === 'pending' && (
+                <div className="mt-2 flex items-center gap-2">
+                  <AlertCircle className="h-3 w-3 text-orange-500" />
+                  <p className="text-xs text-orange-600">Will use OCR for text extraction</p>
+                </div>
+              )}
+              {fileItem.validationWarnings && fileItem.validationWarnings.length > 0 && (
+                <div className="mt-2">
+                  {fileItem.validationWarnings.map((warning, idx) => (
+                    <p key={idx} className="text-xs text-yellow-600">⚠️ {warning}</p>
+                  ))}
+                </div>
               )}
               {fileItem.error && (
                 <div className="mt-2"><p className="text-xs text-destructive">{fileItem.error}</p></div>

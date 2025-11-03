@@ -11,6 +11,7 @@ import {
   Activity, CheckCircle, XCircle, Clock 
 } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
+import { IngestionFailures } from '@/components/admin/IngestionFailures';
 
 interface AdminMetrics {
   total_documents: number;
@@ -292,6 +293,7 @@ const Admin = () => {
         <Tabs defaultValue="users" className="w-full">
           <TabsList>
             <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="failures">Ingestion Failures</TabsTrigger>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
           </TabsList>
           
@@ -323,6 +325,10 @@ const Admin = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="failures">
+            <IngestionFailures />
           </TabsContent>
 
           <TabsContent value="activity">
