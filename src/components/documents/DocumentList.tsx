@@ -23,6 +23,10 @@ interface Document {
   ocr_required?: boolean;
   ocr_attempted?: boolean;
   ocr_completed?: boolean;
+  compliance_reports?: Array<{
+    risk_level: string;
+    compliance_score: number;
+  }>;
 }
 
 interface DocumentListProps {
@@ -40,7 +44,10 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
     try {
       const { data, error } = await supabase
         .from('documents')
-        .select('*')
+        .select(`
+          *,
+          compliance_reports(risk_level, compliance_score)
+        `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -213,16 +220,35 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
               <TableCell className="text-right">
                 <div className="flex items-center justify-end space-x-2">
                   <Button size="sm" variant="ghost" onClick={() => downloadDocument(doc)}><Download className="h-4 w-4" /></Button>
-                  {(doc.processing_status === 'failed' || doc.processing_status === 'error') && (
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      onClick={() => retryAnalysis(doc)}
-                      title={doc.ocr_required && !doc.ocr_completed ? "Retry with OCR" : "Retry analysis"}
-                    >
-                      <AlertTriangle className="h-4 w-4" />
-                    </Button>
-                  )}
+                  {(() => {
+                    // Show retry button if:
+                    // 1. Processing failed/errored
+                    // 2. Document needs OCR (ocr_required but not completed)
+                    // 3. Analysis failed (critical risk + low score)
+                    const hasFailed = doc.processing_status === 'failed' || doc.processing_status === 'error';
+                    const needsOCR = doc.ocr_required && !doc.ocr_completed;
+                    const latestReport = doc.compliance_reports?.[0];
+                    const analysisFailed = latestReport && 
+                      latestReport.risk_level === 'CRITICAL' && 
+                      latestReport.compliance_score < 30;
+                    
+                    const shouldShowRetry = hasFailed || needsOCR || analysisFailed;
+                    
+                    if (!shouldShowRetry) return null;
+                    
+                    return (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                        onClick={() => retryAnalysis(doc)}
+                        title={needsOCR || analysisFailed ? "Retry with OCR" : "Retry analysis"}
+                      >
+                        <AlertTriangle className="h-4 w-4 mr-1" />
+                        {needsOCR || analysisFailed ? "Retry OCR" : "Retry"}
+                      </Button>
+                    );
+                  })()}
                   <Button size="sm" variant="ghost" onClick={() => deleteDocument(doc)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
               </TableCell>
