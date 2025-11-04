@@ -113,24 +113,34 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
     try {
       // Check if document requires OCR
       const shouldUseOCR = doc.ocr_required && !doc.ocr_completed;
+      const latestReport = doc.compliance_reports?.[0];
+      const analysisFailed = latestReport && 
+        latestReport.risk_level === 'CRITICAL' && 
+        latestReport.compliance_score < 30;
       
-      if (shouldUseOCR) {
-        // Retry with OCR
-        await supabase.functions.invoke('ocr-document', { 
+      if (shouldUseOCR || analysisFailed) {
+        // Trigger OCR first, which will then trigger analysis
+        const { error: ocrError } = await supabase.functions.invoke('ocr-document', { 
           body: { document_id: doc.id } 
         });
+        
+        if (ocrError) throw ocrError;
+        
         setDocuments(prev => prev.map(d => 
-          d.id === doc.id ? { ...d, processing_status: 'processing' } : d
+          d.id === doc.id ? { ...d, processing_status: 'processing', ocr_required: true } : d
         ));
         toast({ 
           title: "OCR processing started", 
           description: `${doc.original_name} is being reprocessed with OCR` 
         });
       } else {
-        // Regular retry
-        await supabase.functions.invoke('analyze-document', { 
+        // Regular retry - analyze-document will handle fetching the document
+        const { error: analyzeError } = await supabase.functions.invoke('analyze-document', { 
           body: { document_id: doc.id } 
         });
+        
+        if (analyzeError) throw analyzeError;
+        
         setDocuments(prev => prev.map(d => 
           d.id === doc.id ? { ...d, processing_status: 'pending' } : d
         ));
@@ -147,7 +157,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ onDocumentChange }) => {
           action: "document_reanalyzed",
           resource_type: "document",
           resource_id: doc.id,
-          description: `Re-analysis triggered for ${doc.original_name} ${shouldUseOCR ? '(with OCR)' : ''}`,
+          description: `Re-analysis triggered for ${doc.original_name} ${shouldUseOCR || analysisFailed ? '(with OCR)' : ''}`,
           risk_level: "low",
         });
       }
