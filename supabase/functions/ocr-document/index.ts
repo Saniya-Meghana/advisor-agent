@@ -12,13 +12,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let document_id: string | undefined;
+
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    const { document_id } = await req.json();
+    const body = await req.json();
+    document_id = body.document_id;
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
     if (!OPENAI_API_KEY) {
@@ -153,18 +156,21 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in OCR function:', error);
     
-    // Log the failure
-    const { document_id } = await req.json();
+    // Log the failure if document_id is available
     if (document_id) {
-      const supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      );
-      
-      await supabaseClient
-        .from('documents')
-        .update({ processing_status: 'failed' })
-        .eq('id', document_id);
+      try {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        );
+        
+        await supabaseClient
+          .from('documents')
+          .update({ processing_status: 'failed' })
+          .eq('id', document_id);
+      } catch (updateError) {
+        console.error('Failed to update document status:', updateError);
+      }
     }
 
     return new Response(
