@@ -104,6 +104,16 @@ serve(async (req) => {
     if (!ocrResponse.ok) {
       const errorText = await ocrResponse.text();
       console.error('OCR API error:', ocrResponse.status, errorText);
+      
+      // Better error messaging for quota issues
+      if (ocrResponse.status === 429) {
+        const errorData = JSON.parse(errorText);
+        if (errorData.error?.type === 'insufficient_quota') {
+          throw new Error('OpenAI API quota exceeded. Please add credits to your OpenAI account or upgrade your plan.');
+        }
+        throw new Error('OpenAI API rate limit exceeded. Please try again later.');
+      }
+      
       throw new Error(`OCR failed: ${errorText}`);
     }
 
@@ -175,7 +185,8 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'OCR processing failed'
+        error: error instanceof Error ? error.message : 'OCR processing failed',
+        details: 'Please check your OpenAI API credentials and quota'
       }),
       {
         status: 500,
