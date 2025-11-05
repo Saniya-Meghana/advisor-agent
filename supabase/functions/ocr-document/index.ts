@@ -107,9 +107,13 @@ serve(async (req) => {
       
       // Better error messaging for quota issues
       if (ocrResponse.status === 429) {
-        const errorData = JSON.parse(errorText);
-        if (errorData.error?.type === 'insufficient_quota') {
-          throw new Error('OpenAI API quota exceeded. Please add credits to your OpenAI account or upgrade your plan.');
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.error?.type === 'insufficient_quota') {
+            throw new Error('OpenAI API quota exceeded. Please add credits to your OpenAI account or upgrade your plan.');
+          }
+        } catch {
+          // If parsing fails, use generic message
         }
         throw new Error('OpenAI API rate limit exceeded. Please try again later.');
       }
