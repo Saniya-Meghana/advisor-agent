@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
+          period_end: string
+          period_start: string
+          time_period: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value: number
+          period_end: string
+          period_start: string
+          time_period: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
+          period_end?: string
+          period_start?: string
+          time_period?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -247,6 +280,7 @@ export type Database = {
           chunk_text: string
           created_at: string
           document_id: string
+          embedding: string | null
           embedding_model: string
           id: string
           metadata: Json | null
@@ -256,6 +290,7 @@ export type Database = {
           chunk_text: string
           created_at?: string
           document_id: string
+          embedding?: string | null
           embedding_model: string
           id?: string
           metadata?: Json | null
@@ -265,6 +300,7 @@ export type Database = {
           chunk_text?: string
           created_at?: string
           document_id?: string
+          embedding?: string | null
           embedding_model?: string
           id?: string
           metadata?: Json | null
@@ -330,6 +366,59 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_extractions: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          document_id: string
+          entity_category: string
+          entity_type: string
+          entity_value: string
+          id: string
+          location: Json | null
+          masked_value: string | null
+          metadata: Json | null
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          document_id: string
+          entity_category: string
+          entity_type: string
+          entity_value: string
+          id?: string
+          location?: Json | null
+          masked_value?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          document_id?: string
+          entity_category?: string
+          entity_type?: string
+          entity_value?: string
+          id?: string
+          location?: Json | null
+          masked_value?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_extractions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ingestion_failures: {
         Row: {
           created_at: string | null
@@ -391,6 +480,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      integration_settings: {
+        Row: {
+          created_at: string
+          id: string
+          integration_type: string
+          is_enabled: boolean
+          notification_rules: Json | null
+          updated_at: string
+          user_id: string
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          integration_type: string
+          is_enabled?: boolean
+          notification_rules?: Json | null
+          updated_at?: string
+          user_id: string
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          integration_type?: string
+          is_enabled?: boolean
+          notification_rules?: Json | null
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {

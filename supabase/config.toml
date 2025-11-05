@@ -68,3 +68,15 @@ verify_jwt = false
 
 [functions.webhook-handler]
 verify_jwt = false
+
+[functions.chat-qa]
+verify_jwt = true
+
+[functions.generate-embeddings]
+verify_jwt = false
+
+[functions.extract-entities]
+verify_jwt = false
+
+[functions.send-integration-notification]
+verify_jwt = false
