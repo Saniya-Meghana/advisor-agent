@@ -61,7 +61,17 @@ serve(async (req) => {
 
     // Convert to base64 for GPT-4 Vision
     const arrayBuffer = await fileData.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const uint8Array = new Uint8Array(arrayBuffer);
+    
+    // Process in chunks to avoid stack overflow with large files
+    let binaryString = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
+      binaryString += String.fromCharCode(...chunk);
+    }
+    
+    const base64 = btoa(binaryString);
     const mimeType = document.file_type || 'application/pdf';
     const base64Image = `data:${mimeType};base64,${base64}`;
 
