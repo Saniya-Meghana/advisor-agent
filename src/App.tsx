@@ -25,6 +25,9 @@ const Admin = lazy(() => import("@/pages/Admin"));
 const AdminPanel = lazy(() => import("@/components/admin/AdminPanel"));
 const NotificationCenter = lazy(() => import("@/components/notifications/NotificationCenter"));
 const Assistant = lazy(() => import("@/pages/Assistant"));
+const ChatAssistant = lazy(() => import("@/pages/ChatAssistant"));
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const Integrations = lazy(() => import("@/pages/Integrations"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const GovernancePulse = lazy(() => import("@/pages/GovernancePulse"));
@@ -111,6 +114,9 @@ const routes: AppRoute[] = [
   { path: "/audit", element: <AuditLog />, protected: true },
   { path: "/settings", element: <Settings />, protected: true },
   { path: "/assistant", element: <Assistant />, protected: true },
+  { path: "/chat", element: <ChatAssistant />, protected: true },
+  { path: "/admin-dashboard", element: <AdminDashboard />, protected: true },
+  { path: "/integrations", element: <Integrations />, protected: true },
   { path: "/onboarding", element: <Onboarding />, protected: true },
   { path: "/admin", element: <Admin />, protected: true },
   { path: "/notifications", element: <NotificationCenter />, protected: true },

@@ -35,6 +35,9 @@ const navigationItems = [
   { title: "Documents", url: "/documents", icon: FileText },
   { title: "Audit Log", url: "/audit", icon: ScrollText },
   { title: "Compliance Assistant", url: "/assistant", icon: MessageCircle },
+  { title: "Chat Q&A", url: "/chat", icon: MessageCircle },
+  { title: "Admin Dashboard", url: "/admin-dashboard", icon: Shield },
+  { title: "Integrations", url: "/integrations", icon: Activity },
 ];
 
 const governanceItems = [

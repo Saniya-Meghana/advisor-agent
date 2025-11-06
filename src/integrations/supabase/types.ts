@@ -731,6 +731,19 @@ export type Database = {
         }
         Returns: string
       }
+      search_document_embeddings: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          chunk_index: number
+          chunk_text: string
+          document_id: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "auditor" | "analyst" | "viewer"
