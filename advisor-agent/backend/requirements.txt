@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+redis
+python-dotenv
+pydantic
+prometheus-fastapi-instrumentator
+requests
+pytesseract
+pdf2image
+Pillow
+psycopg2-binary
+supabase
+jira
+python-jose
+python-multipart
+python-slugify
+pdfplumber

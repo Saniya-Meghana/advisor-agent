@@ -165,3 +165,7 @@ async def upload_documents(files: List[UploadFile] = File(...)):
 @app.get("/")
 def read_root():
     return {"status": "Compliance Advisor API is running"}
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}

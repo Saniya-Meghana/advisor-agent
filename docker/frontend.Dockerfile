@@ -1,10 +1,25 @@
-FROM node:20-alpine AS build
+# ---- Stage 1: Build the React frontend ----
+FROM node:20-slim AS build
 WORKDIR /app
-COPY package*.json ./
+
+# Copy package files explicitly from frontend/
+COPY ./frontend/package.json ./
+COPY ./frontend/package-lock.json ./
+
+# Install dependencies
 RUN npm install
-COPY . .
+
+# Copy the rest of the frontend source code
+COPY ./frontend ./
+
+# Build the React app
 RUN npm run build
-FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+
+# ---- Stage 2: Serve via Nginx ----
+FROM nginx:stable-alpine AS production
+
+# Copy built files from build stage
+COPY --from=build /app/dist /usr/share/nginx/html
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
